@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+:root {
+  --navy-dark: #0B132B;
+  --navy-surface: #1C2541;
+  --navy-border: #3A506B;
+  --teal-accent: #00B4D8;
+  --teal-hover: #0077B6;
+  --background: #0B132B;
+  --foreground: #F8F9FA;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  min-height: 100vh;
+}
+
+/* Custom scrollbars for clean enterprise look */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0B132B;
+}
+::-webkit-scrollbar-thumb {
+  background: #3A506B;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #00B4D8;
+}
