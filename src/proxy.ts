@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server';
 // Protected paths requiring authenticated session
 const PROTECTED_PREFIXES = ['/dashboard', '/documents', '/audit', '/admin', '/security'];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const sessionCookie = request.cookies.get('trustvault_session_id')?.value;
