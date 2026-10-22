@@ -22,7 +22,7 @@ This log documents AI interactions, prompts, findings, vulnerabilities/limitatio
   3. Renamed the package to `trustvault` in `package.json`.
   4. Installed `vitest` and `vite` with `--legacy-peer-deps` and configured `vitest.config.ts` with path aliasing.
   5. Established `.env.example` and verified `.gitignore` to prevent secret leakage.
-- **Git commit:** `e6c921a` (Scaffold Next.js TypeScript project, Vitest, Supabase SSR, and environment template)
+- **Git commit:** `155fce9` (feat(scaffold): initialize Next.js 16 App Router with TypeScript strict mode, Tailwind CSS, and Vitest)
 
 ---
 
@@ -40,7 +40,7 @@ This log documents AI interactions, prompts, findings, vulnerabilities/limitatio
 - **What I changed to fix it:**
   1. Refactored `verifyAuditTrailIntegrity` in `src/lib/audit/audit-logger.ts` to verify the array in its true sequential insertion order rather than arbitrary UUID sorting.
   2. Updated `buildSeedAuditLogs()` in `src/lib/data/store.ts` to use relative timestamps from the past (`Date.now() - 3600000`), ensuring strict chronological monotonicity.
-- **Git commit:** `a9d318e` (Implement tamper-evident SHA-256 hash chain and fix chronological verification)
+- **Git commit:** `745c10b` and `45e0d3a` (feat(database) & feat(security): schema, RLS, and cryptographic hash chain verification)
 
 ---
 
@@ -59,7 +59,7 @@ This log documents AI interactions, prompts, findings, vulnerabilities/limitatio
   1. Built server-mediated file streaming via `GET /api/documents/[id]/download` which queries fresh permission state on every request and returns `Cache-Control: no-store`.
   2. Implemented strict role boundaries: Administrators can view metadata and audit logs, but cannot download confidential file contents without explicit owner grants.
   3. Added binary magic-byte validators for PDF (`%PDF-`), ZIP-based Office files (`PK\x03\x04`), and images, rejecting spoofed extensions.
-- **Git commit:** `b41f702` (Implement centralized authorization engine and server-mediated file delivery)
+- **Git commit:** `45e0d3a` and `04e77ee` (feat(security) & feat(api): centralized authorization and server-mediated file delivery)
 
 ---
 
@@ -78,7 +78,7 @@ This log documents AI interactions, prompts, findings, vulnerabilities/limitatio
   1. Added Next.js middleware protecting `/dashboard`, `/documents`, `/audit`, `/admin`, and `/security`, redirecting unauthenticated visitors to `/login?message=session_required`.
   2. Created accessible `SignOutModal` with Cancel and Sign Out buttons and role badge display.
   3. Implemented `/api/auth/logout` which invalidates Supabase sessions, clears cookies, and logs the sign-out event in the audit trail.
-- **Git commit:** `c28e901` (Add secure sign-out confirmation modal, session invalidation, and middleware route guards)
+- **Git commit:** `5f0a05c` (feat(ui): build enterprise dashboard, secure sign-out confirmation dialog, and route guards)
 
 ---
 
@@ -96,4 +96,4 @@ This log documents AI interactions, prompts, findings, vulnerabilities/limitatio
   1. Removed the experimental `cacheComponents: true` and `partialPrefetching: true` from `next.config.ts`, restoring standard dynamic server-side rendering for secure cookie verification.
   2. Built the live Security Center (`/security`) with real-time SHA-256 hash chain verification and automated test matrix telemetry.
   3. Re-ran `npm run build`, completing compilation with zero errors across all 24 routes.
-- **Git commit:** `d85c43a` (Complete Security Operations Center, Admin Dashboard, and resolve Next.js 16 Turbopack build configuration)
+- **Git commit:** `25a8d45` and `485e866` (test(security) & docs: 29 automated tests, test matrix telemetry, and documentation)
