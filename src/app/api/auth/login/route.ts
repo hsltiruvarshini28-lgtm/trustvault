@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { dataStore } from '@/lib/data/store';
-import { SESSION_COOKIE_NAME } from '@/lib/auth/session';
+import {
+  SESSION_COOKIE_NAME,
+  ACCOUNT_COOKIE_NAME,
+  createSessionToken,
+  verifyAccountRecordToken,
+} from '@/lib/auth/session';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { UserProfile } from '@/types';
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,11 +23,36 @@ export async function POST(req: NextRequest) {
     const cookieStore = await cookies();
 
     // 1. Verify credentials against local secure store
-    const localCheck = dataStore.verifyCredentials(cleanEmail, password);
+    let localCheck = dataStore.verifyCredentials(cleanEmail, password);
+
+    // If not found in local container memory, check signed account registry cookie
+    if (!localCheck.valid && !localCheck.user) {
+      const accountCookie = cookieStore.get(ACCOUNT_COOKIE_NAME)?.value;
+      if (accountCookie) {
+        const storedAccount = verifyAccountRecordToken(accountCookie);
+        if (storedAccount && storedAccount.email.toLowerCase() === cleanEmail) {
+          // Restore profile and credentials on this serverless instance
+          dataStore.ensureProfile({
+            id: storedAccount.id,
+            email: storedAccount.email,
+            full_name: storedAccount.full_name,
+            role: storedAccount.role,
+            status: storedAccount.status,
+            created_at: storedAccount.created_at,
+            updated_at: storedAccount.created_at,
+          });
+          dataStore.ensureCredential(storedAccount.id, storedAccount.password_hash);
+
+          // Re-verify against restored credentials
+          localCheck = dataStore.verifyCredentials(cleanEmail, password);
+        }
+      }
+    }
 
     if (localCheck.valid && localCheck.user) {
-      // Set secure session cookie
-      cookieStore.set(SESSION_COOKIE_NAME, localCheck.user.id, {
+      // Set cryptographically signed session token
+      const sessionToken = createSessionToken(localCheck.user);
+      cookieStore.set(SESSION_COOKIE_NAME, sessionToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
@@ -113,15 +144,30 @@ export async function POST(req: NextRequest) {
         metadata: { email: cleanEmail },
       });
 
+      const finalUser: UserProfile = userProfile || {
+        id: data.user.id,
+        email: data.user.email || cleanEmail,
+        full_name: data.user.user_metadata?.full_name || 'User',
+        role: 'VIEWER',
+        status: 'ACTIVE',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      dataStore.ensureProfile(finalUser);
+      const sessionToken = createSessionToken(finalUser);
+      cookieStore.set(SESSION_COOKIE_NAME, sessionToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 60 * 60 * 24, // 24 hours
+      });
+
       return NextResponse.json({
         success: true,
-        user: userProfile || {
-          id: data.user.id,
-          email: data.user.email,
-          full_name: data.user.user_metadata?.full_name || 'User',
-          role: 'VIEWER',
-          status: 'ACTIVE',
-        },
+        user: finalUser,
+        message: 'Signed in successfully.',
       });
     } catch {
       return NextResponse.json({ error: 'Invalid user email or password.' }, { status: 401 });

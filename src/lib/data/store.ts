@@ -303,6 +303,18 @@ class TrustVaultDataStore {
     return profile;
   }
 
+  public ensureProfile(profile: UserProfile): void {
+    if (!this.profiles.has(profile.id)) {
+      this.profiles.set(profile.id, { ...profile });
+    }
+  }
+
+  public ensureCredential(userId: string, passwordHash: string): void {
+    if (!this.credentials.has(userId)) {
+      this.credentials.set(userId, passwordHash);
+    }
+  }
+
   public registerUser(params: {
     full_name: string;
     email: string;
@@ -310,7 +322,7 @@ class TrustVaultDataStore {
     role?: UserRole;
     ip_address?: string;
     user_agent?: string;
-  }): { success: boolean; user?: UserProfile; error?: string } {
+  }): { success: boolean; user?: UserProfile; password_hash?: string; error?: string } {
     if (!params.full_name || !params.full_name.trim()) {
       return { success: false, error: 'Full name is required.' };
     }
@@ -366,7 +378,7 @@ class TrustVaultDataStore {
       metadata: { email: cleanEmail, role: profile.role },
     });
 
-    return { success: true, user: profile };
+    return { success: true, user: profile, password_hash: passwordHash };
   }
 
   public verifyCredentials(

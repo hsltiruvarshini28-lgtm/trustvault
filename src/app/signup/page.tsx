@@ -88,7 +88,8 @@ function SignupForm() {
       setSuccessMsg('Account registered successfully! Redirecting to security console...');
       setTimeout(() => {
         router.push('/dashboard');
-      }, 1200);
+        router.refresh();
+      }, 1000);
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : 'Registration failed.');
       setLoading(false);
