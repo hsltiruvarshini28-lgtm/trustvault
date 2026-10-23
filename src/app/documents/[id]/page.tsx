@@ -5,6 +5,7 @@ import { dataStore } from '@/lib/data/store';
 import { canAccessDocument } from '@/lib/auth/authorization';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { DocumentRecoveryHandler } from '@/components/documents/DocumentRecoveryHandler';
+import { DeleteDocumentButton } from '@/components/documents/DeleteDocumentButton';
 import { Badge } from '@/components/ui/Badge';
 import {
   FileText,
@@ -132,6 +133,16 @@ export default async function DocumentDetailPage({
                 <Lock className="w-3.5 h-3.5 text-[#677582]" />
                 <span>Confidential (Metadata Only)</span>
               </div>
+            )}
+
+            {/* Owner or Administrator Delete Button */}
+            {(isOwner || user.role === 'ADMIN') && (
+              <DeleteDocumentButton
+                docId={doc.id}
+                docName={doc.name}
+                compact={false}
+                redirectTo="/documents"
+              />
             )}
           </div>
         </div>

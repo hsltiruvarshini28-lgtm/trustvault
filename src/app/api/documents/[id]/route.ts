@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentUser } from '@/lib/auth/session';
+import {
+  getCurrentUser,
+  DOCUMENTS_COOKIE_NAME,
+  createDocumentsToken,
+  verifyDocumentsToken,
+} from '@/lib/auth/session';
 import { dataStore } from '@/lib/data/store';
 import { canAccessDocument } from '@/lib/auth/authorization';
+import { cookies } from 'next/headers';
 
 export async function GET(
   req: NextRequest,
@@ -80,5 +86,20 @@ export async function DELETE(
     return NextResponse.json({ error: error || 'Failed to delete document' }, { status: 403 });
   }
 
-  return NextResponse.json({ success: true, message: 'Document deleted successfully.' });
+  // Update custom documents cookie across serverless containers
+  const cookieStore = await cookies();
+  const existingCookie = cookieStore.get(DOCUMENTS_COOKIE_NAME)?.value;
+  const existingDocs = existingCookie ? verifyDocumentsToken(existingCookie) : [];
+  const updatedDocs = existingDocs.filter((d) => d.id !== id);
+  const docsToken = createDocumentsToken(updatedDocs);
+
+  const response = NextResponse.json({ success: true, message: 'Document deleted successfully.' });
+  response.cookies.set(DOCUMENTS_COOKIE_NAME, docsToken, {
+    path: '/',
+    httpOnly: false,
+    sameSite: 'lax',
+    maxAge: 60 * 60 * 24 * 7,
+  });
+
+  return response;
 }

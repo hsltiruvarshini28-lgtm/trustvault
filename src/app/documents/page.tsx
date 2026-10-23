@@ -4,6 +4,7 @@ import { getCurrentUser } from '@/lib/auth/session';
 import { dataStore } from '@/lib/data/store';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { DocumentsClientSync } from '@/components/documents/DocumentsClientSync';
+import { DeleteDocumentButton } from '@/components/documents/DeleteDocumentButton';
 import { Badge } from '@/components/ui/Badge';
 import {
   Files,
@@ -341,6 +342,15 @@ export default async function DocumentsPage({
                               >
                                 <KeyRound className="w-3.5 h-3.5" />
                               </Link>
+                            )}
+
+                            {/* Owner or Administrator Delete Button */}
+                            {(isOwner || user.role === 'ADMIN') && (
+                              <DeleteDocumentButton
+                                docId={doc.id}
+                                docName={doc.name}
+                                compact={true}
+                              />
                             )}
                           </div>
                         </td>

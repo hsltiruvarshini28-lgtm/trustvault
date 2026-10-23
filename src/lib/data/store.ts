@@ -651,7 +651,11 @@ class TrustVaultDataStore {
   }
 
   public deleteDocument(docId: string, user: UserProfile): { success: boolean; error?: string } {
-    const doc = this.documents.get(docId);
+    let doc = this.documents.get(docId);
+    if (!doc) {
+      this.loadFromDisk();
+      doc = this.documents.get(docId);
+    }
     if (!doc) return { success: false, error: 'Document not found' };
 
     const decision = canAccessDocument(user, doc, 'delete');
@@ -671,6 +675,7 @@ class TrustVaultDataStore {
 
     doc.status = 'DELETED';
     doc.updated_at = new Date().toISOString();
+    this.persistToDisk();
 
     this.appendAuditLog({
       actor_user_id: user.id,
