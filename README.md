@@ -36,8 +36,12 @@ TrustVault guarantees **immediate access revocation** via server-mediated file d
    - Invalidates Supabase sessions, deletes HTTP-only session cookies, and redirects to `/login?message=signed_out`.
    - Server-side Next.js middleware guards `/dashboard`, `/documents`, `/audit`, `/admin`, and `/security`.
 
-6. **29 Real Automated Unit & Integration Tests:**
-   - Comprehensive test suite covering all 24 required security scenarios with 100% pass rate.
+6. **Multi-Attribute Search & AI Access Advisor:**
+   - Comprehensive search supporting **name, owner, category, and date range**.
+   - Zero-trust category-aware permission recommendation engine. AI suggestions are strictly advisory and **never widen access automatically**; human owner confirmation is mandatory, generating dual cryptographic audit events.
+
+7. **69 Real Automated Unit & Integration Tests:**
+   - Comprehensive test suite covering authorization matrix, revocation, file validation, audit tampering, user registration, serverless session persistence, and search/AI suggestion isolation with 100% pass rate.
 
 ---
 
@@ -145,7 +149,7 @@ When running locally or evaluating, you can authenticate instantly using the **1
 
 ### 1. Clone & Install Dependencies
 ```bash
-git clone https://github.com/your-username/trustvault.git
+git clone https://github.com/hsltiruvarshini28-lgtm/trustvault.git
 cd trustvault
 npm install
 ```
@@ -178,12 +182,15 @@ npm test
 ```text
 ✓ tests/security/authorization.test.ts (12 tests)
 ✓ tests/security/file-validation.test.ts (6 tests)
-✓ tests/security/audit-integrity.test.ts (4 tests)
-✓ tests/integration/revocation-and-scenarios.test.ts (7 tests)
+✓ tests/security/audit-integrity.test.ts (5 tests)
+✓ tests/integration/revocation-and-scenarios.test.ts (8 tests)
+✓ tests/security/search-and-ai-suggest.test.ts (8 tests)
+✓ tests/security/registration-and-password.test.ts (22 tests)
+✓ tests/security/serverless-session-persistence.test.ts (8 tests)
 
-Test Files  4 passed (4)
-     Tests  29 passed (29)
-  Duration  566ms
+Test Files  7 passed (7)
+     Tests  69 passed (69)
+  Duration  5.09s
 ```
 
 ### 4. Start Development Server
@@ -191,6 +198,14 @@ Test Files  4 passed (4)
 npm run dev
 ```
 Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+---
+
+## Five-Minute Live Demonstration Video & Script
+
+- **Live Production URL:** [https://trustvaultsecure.vercel.app](https://trustvaultsecure.vercel.app)
+- **Step-by-Step Demo Script:** See [`DEMO_SCRIPT.md`](DEMO_SCRIPT.md) for the exact 7-step walkthrough (Alice uploads, grants Bob, Bob downloads, Charlie denied, audit proof, Alice revokes, Bob blocked).
+- **Video Demonstration:** Recorded walkthrough covering zero-trust permissions, immediate revocation, and SHA-256 audit verification is available alongside submission at [TrustVault 5-Minute Walkthrough](https://github.com/hsltiruvarshini28-lgtm/trustvault).
 
 ---
 

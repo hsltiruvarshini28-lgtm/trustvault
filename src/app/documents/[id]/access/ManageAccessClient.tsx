@@ -12,6 +12,9 @@ import {
   CheckCircle2,
   Clock,
   History,
+  Sparkles,
+  Bot,
+  ShieldAlert,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { UserProfile, DocumentRecord, DocumentPermissionRecord, PermissionLevel } from '@/types';
@@ -37,6 +40,73 @@ export function ManageAccessClient({
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
+  // AI Access Suggestion State
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiSuggestion, setAiSuggestion] = useState<{
+    candidate: { id: string; full_name: string; email: string };
+    suggestedPermission: PermissionLevel;
+    rationale: string;
+    policyNotice: string;
+  } | null>(null);
+
+  const handleRequestAiSuggestion = async () => {
+    try {
+      setAiLoading(true);
+      setErrorMsg(null);
+      setSuccessMsg(null);
+
+      const res = await fetch(`/api/documents/${doc.id}/ai-suggest`, {
+        method: 'POST',
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to generate AI suggestion');
+      }
+
+      setAiSuggestion(data.suggestion);
+      setSuccessMsg('AI Access Recommendation generated and recorded in audit trail.');
+      setAiLoading(false);
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : 'AI suggestion failed');
+      setAiLoading(false);
+    }
+  };
+
+  const handleApplyAiSuggestion = async () => {
+    if (!aiSuggestion) return;
+    try {
+      setLoading(true);
+      setErrorMsg(null);
+      setSuccessMsg(null);
+
+      const res = await fetch(`/api/documents/${doc.id}/permissions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: aiSuggestion.candidate.id,
+          permission: aiSuggestion.suggestedPermission,
+          aiAssisted: true,
+          rationale: aiSuggestion.rationale,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to grant permission');
+      }
+
+      setSuccessMsg(
+        `Access granted to ${aiSuggestion.candidate.full_name} (${aiSuggestion.suggestedPermission}) following confirmed AI suggestion.`
+      );
+      setAiSuggestion(null);
+      await refreshPermissions();
+      setLoading(false);
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : 'Failed to apply AI suggestion');
+      setLoading(false);
+    }
+  };
 
   const refreshPermissions = async () => {
     try {
@@ -152,6 +222,100 @@ export function ManageAccessClient({
           <span>{successMsg}</span>
         </div>
       )}
+
+      {/* AI Access Suggestion Advisor (Zero-Trust Compliant) */}
+      <div className="p-4 bg-gradient-to-r from-[#1A2836] to-[#25394B] rounded border border-[#374E63] text-white space-y-3 shadow-xs">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-2 border-b border-[#374E63]/70">
+          <div className="flex items-center space-x-2">
+            <div className="w-6 h-6 rounded bg-[#527C78] flex items-center justify-center text-white">
+              <Bot className="w-3.5 h-3.5" />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                <span>TrustVault AI Access Advisor</span>
+                <span className="text-[9px] font-mono px-1.5 py-0.2 bg-[#527C78]/40 text-[#A4D4CF] rounded border border-[#527C78]/60">
+                  ADVISORY ONLY
+                </span>
+              </div>
+              <p className="text-[11px] text-[#CBD5E1]">
+                Category-aware least-privilege permission recommendation engine.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleRequestAiSuggestion}
+            disabled={aiLoading}
+            className="px-3 py-1.5 rounded bg-[#527C78] hover:bg-[#416863] text-white text-xs font-medium transition-colors flex items-center space-x-1.5 cursor-pointer disabled:opacity-50"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>{aiLoading ? 'Analyzing Vault...' : 'Ask AI Recommendation'}</span>
+          </button>
+        </div>
+
+        {aiSuggestion ? (
+          <div className="p-3 bg-[#131F2B] rounded border border-[#43627E] space-y-2.5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+              <div>
+                <span className="text-[#94A3B8]">Suggested Recipient: </span>
+                <span className="font-semibold text-white">
+                  {aiSuggestion.candidate.full_name} ({aiSuggestion.candidate.email})
+                </span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="text-[#94A3B8]">Recommended Access: </span>
+                <span
+                  className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                    aiSuggestion.suggestedPermission === 'EDIT'
+                      ? 'bg-[#A87532] text-white'
+                      : 'bg-[#527C78] text-white'
+                  }`}
+                >
+                  {aiSuggestion.suggestedPermission}
+                </span>
+              </div>
+            </div>
+
+            <div className="text-xs text-[#E2E8F0] bg-[#1E2E3E] p-2.5 rounded border border-[#2D455B] space-y-1">
+              <div className="text-[10px] uppercase font-bold text-[#A4D4CF] tracking-wide">
+                Security Rationale &amp; Least-Privilege Assessment:
+              </div>
+              <p className="text-[11px] leading-relaxed text-[#CBD5E1]">{aiSuggestion.rationale}</p>
+            </div>
+
+            <div className="p-2 rounded bg-[#B64B4B]/10 border border-[#B64B4B]/30 flex items-start space-x-2 text-[10px] text-[#FCA5A5]">
+              <ShieldAlert className="w-3.5 h-3.5 text-[#FCA5A5] shrink-0 mt-0.5" />
+              <span>
+                <strong>Zero-Trust Safeguard:</strong> The machine never widens access automatically. Both this recommendation and your confirmation decision are permanently recorded in the SHA-256 tamper-evident audit trail.
+              </span>
+            </div>
+
+            <div className="flex items-center justify-end space-x-2 pt-1">
+              <button
+                type="button"
+                onClick={() => setAiSuggestion(null)}
+                className="px-2.5 py-1 text-xs text-[#CBD5E1] hover:text-white cursor-pointer"
+              >
+                Dismiss
+              </button>
+              <button
+                type="button"
+                onClick={handleApplyAiSuggestion}
+                disabled={loading}
+                className="px-3.5 py-1.5 rounded bg-[#46785C] hover:bg-[#37614A] text-white text-xs font-semibold transition-colors flex items-center space-x-1.5 cursor-pointer shadow-xs disabled:opacity-50"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Confirm &amp; Apply AI Grant</span>
+              </button>
+            </div>
+          </div>
+        ) : (
+          <p className="text-[11px] text-[#94A3B8] italic">
+            Click &quot;Ask AI Recommendation&quot; to inspect document metadata ({doc.category}) and receive an audited, least-privilege access suggestion.
+          </p>
+        )}
+      </div>
 
       {/* Grant New Permission Card */}
       <div className="p-5 bg-white border border-[#D0D9DF] rounded shadow-xs space-y-3">

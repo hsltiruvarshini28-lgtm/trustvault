@@ -636,7 +636,8 @@ class TrustVaultDataStore {
     documentId: string,
     granter: UserProfile,
     targetUserId: string,
-    level: PermissionLevel
+    level: PermissionLevel,
+    options?: { aiAssisted?: boolean; rationale?: string }
   ): { success: boolean; error?: string } {
     const doc = this.documents.get(documentId);
     if (!doc) return { success: false, error: 'Document not found' };
@@ -698,7 +699,53 @@ class TrustVaultDataStore {
       request_id: `req-${Date.now()}`,
       ip_address: '127.0.0.1',
       user_agent: 'TrustVaultWeb/1.0',
-      metadata: { target_email: targetUser.email, target_name: targetUser.full_name, permission: level },
+      metadata: {
+        target_email: targetUser.email,
+        target_name: targetUser.full_name,
+        permission: level,
+        ai_assisted: Boolean(options?.aiAssisted),
+        ai_rationale: options?.rationale || null,
+        confirmed_by_owner: true,
+      },
+    });
+
+    return { success: true };
+  }
+
+  public recordAiSuggestion(
+    granter: UserProfile,
+    documentId: string,
+    targetUserId: string,
+    suggestedPermission: PermissionLevel,
+    rationale: string
+  ): { success: boolean; error?: string } {
+    const doc = this.documents.get(documentId);
+    if (!doc) return { success: false, error: 'Document not found' };
+
+    const decision = canAccessDocument(granter, doc, 'grant_access');
+    if (!decision.allowed) {
+      return { success: false, error: decision.reason };
+    }
+
+    const targetUser = this.profiles.get(targetUserId);
+    if (!targetUser) return { success: false, error: 'Target user does not exist.' };
+
+    this.appendAuditLog({
+      actor_user_id: granter.id,
+      document_id: documentId,
+      action: 'AI_ACCESS_SUGGESTION',
+      result: 'ALLOWED',
+      request_id: `req-ai-${Date.now()}`,
+      ip_address: '127.0.0.1',
+      user_agent: 'TrustVaultWeb/1.0 (AI Recommender)',
+      metadata: {
+        suggested_user_id: targetUserId,
+        suggested_email: targetUser.email,
+        suggested_name: targetUser.full_name,
+        suggested_permission: suggestedPermission,
+        rationale,
+        confirmed_by_human: false,
+      },
     });
 
     return { success: true };

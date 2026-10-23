@@ -48,7 +48,7 @@ export async function POST(
 
   const { id } = await params;
   const body = await req.json();
-  const { userId, permission } = body;
+  const { userId, permission, aiAssisted, rationale } = body;
 
   if (!userId || !permission || !['READ', 'EDIT'].includes(permission)) {
     return NextResponse.json(
@@ -57,7 +57,10 @@ export async function POST(
     );
   }
 
-  const result = dataStore.grantPermission(id, user, userId, permission);
+  const result = dataStore.grantPermission(id, user, userId, permission, {
+    aiAssisted: Boolean(aiAssisted),
+    rationale: typeof rationale === 'string' ? rationale : undefined,
+  });
 
   if (!result.success) {
     return NextResponse.json({ error: result.error }, { status: 403 });

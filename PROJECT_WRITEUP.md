@@ -12,8 +12,9 @@ Key components constructed:
 2. **Centralized Authorization Engine (`canAccessDocument`):** Evaluates every action against session identity, document ownership, active permissions, and account status.
 3. **Private File Delivery Engine:** Eliminates public bucket access and long-lived signed URLs. Files are streamed through server-mediated endpoints with strict cache-invalidation headers.
 4. **Append-Only Tamper-Evident Audit Trail:** Powered by SHA-256 cryptographic hash chaining over canonical JSON payloads, accompanied by a verification utility that detects altered, missing, or reordered records.
-5. **Robust Automated Test Suite:** 29 automated tests (Vitest) verifying all 24 security scenarios, including path traversal, signature spoofing, role escalation, and immediate revocation.
-6. **Secure Sign-Out and Re-Authentication:** Complete session invalidation, accessible confirmation dialog, flash message handling, and server-side route guards.
+5. **Multi-Attribute Search & AI Access Advisor:** Comprehensive search across name, owner, category, and date range, coupled with a zero-trust AI recommendation engine that generates advisory grants requiring mandatory owner confirmation and dual audit logging.
+6. **Robust Automated Test Suite:** 69 automated tests (Vitest) across 7 suites verifying all security scenarios, including path traversal, signature spoofing, role escalation, immediate revocation, stateless session persistence, and search/AI isolation.
+7. **Secure Sign-Out and Re-Authentication:** Complete session invalidation, accessible confirmation dialog, flash message handling, and server-side route guards.
 
 ---
 
@@ -72,6 +73,7 @@ During development, AI accelerated scaffolding and automated test authoring, but
 2. **Vitest Peer Dependency Conflict:** npm ERESOLVE failed when installing vitest alongside `@types/node@20`. Resolved using legacy peer resolution.
 3. **Sub-Millisecond Hash Chain Ordering Bug:** In initial test runs, `verifyAuditTrailIntegrity` sorted events using `new Date(timestamp).getTime()`, and broke ties using `a.id.localeCompare(b.id)`. When two seed events were generated within the same millisecond, the random UUID comparison inverted the sequential chain order, causing an integrity false-positive. Resolved by preserving sequential insertion order and validating monotonic timestamps.
 4. **Next.js 16 Experimental Turbopack Conflict:** `create-next-app` generated `cacheComponents: true` in `next.config.ts`, which broke Next.js route segment configs during production build. Resolved by removing the experimental flag to restore standard dynamic route support.
+5. **Autonomous AI Access Grants vs. Zero-Trust Enforcement:** When generating AI permission suggestions, the AI initially attempted to directly execute grants upon suggestion creation. We rejected this pattern because the machine must never widen access on its own. We designed a two-stage zero-trust pattern: the AI generates an advisory recommendation logged as `AI_ACCESS_SUGGESTION`, but the grant takes effect only when the human owner confirms it, generating a verified `PERMISSION_GRANT` in the SHA-256 hash chain.
 
 ---
 
@@ -79,6 +81,7 @@ During development, AI accelerated scaffolding and automated test authoring, but
 1. **In-Browser Document Editing:** Building an embedded full-featured Word/Excel web editor was out of scope. Document editing is supported via metadata editing and authorized file replacement.
 2. **Client-Side Encryption (Zero-Knowledge):** While investigated, client-side encryption of files before upload would prevent server-side format verification (magic bytes) and server-mediated search indexing.
 3. **Multi-Factor Authentication (MFA):** In production, Supabase Auth MFA (TOTP) should be enabled. For the hackathon/demo challenge, 1-click persona logins were prioritized to enable frictionless evaluation.
+4. **Autonomous Access Escalation by AI:** The platform deliberately forbids automated widening of access by AI or background processes. All permission grants require human sovereign confirmation.
 
 ---
 

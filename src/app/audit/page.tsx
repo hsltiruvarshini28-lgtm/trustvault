@@ -12,6 +12,7 @@ import {
   Shield,
   Layers,
   ArrowRight,
+  Bot,
 } from 'lucide-react';
 import { getCurrentUser } from '@/lib/auth/session';
 import { dataStore } from '@/lib/data/store';
@@ -88,6 +89,14 @@ function getActionPresentation(log: AuditLogRecord) {
         icon: KeyRound,
         iconColor: 'text-[#B64B4B]',
         bgIcon: 'bg-[#FAF0F0]',
+      };
+    case 'AI_ACCESS_SUGGESTION':
+      return {
+        label: 'AI Access Advisory',
+        badge: 'ALLOWED',
+        icon: Bot,
+        iconColor: 'text-[#527C78]',
+        bgIcon: 'bg-[#EAF3EE]',
       };
     default:
       return {

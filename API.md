@@ -89,8 +89,12 @@ This document specifies all application programming interfaces (APIs) provided b
   - `OWNER`: Documents owned by the user.
   - `VIEWER`: Documents explicitly shared with active `READ` or `EDIT` grants.
 - **Query Parameters:**
-  - `q` (optional): Case-insensitive search string matching name or description.
+  - `q` (optional): Case-insensitive search string matching filename, description, owner full name, or owner email.
+  - `owner` (optional): Case-insensitive search string matching owner full name or email.
   - `category` (optional): Filter by category (`Finance`, `Engineering`, `Executive`, `Legal`, `General`).
+  - `date` (optional): Exact date match formatted as `YYYY-MM-DD`.
+  - `startDate` (optional): Filter documents created on or after date `YYYY-MM-DD`.
+  - `endDate` (optional): Filter documents created on or before date `YYYY-MM-DD`.
 - **Response (200 OK):**
   ```json
   {
@@ -237,7 +241,31 @@ This document specifies all application programming interfaces (APIs) provided b
   { "success": true, "message": "Access granted: READ" }
   ```
 - **Audit Events:** `PERMISSION_GRANT` (`ALLOWED` or `DENIED`).
-- **Automated Tests:** `tests/security/authorization.test.ts` (Cases 4, 16).
+---
+
+### `POST /api/documents/[id]/ai-suggest`
+- **Purpose:** Generates a zero-trust category-aware least-privilege permission recommendation for a document. Crucially, the machine **never widens access automatically**; it writes an advisory recommendation to the SHA-256 audit trail (`AI_ACCESS_SUGGESTION`) and requires explicit confirmation by the human owner.
+- **Authorization:** Owner of the document or Administrator only.
+- **Request Body:** None required (analyzes document category and candidate team members).
+- **Response (200 OK):**
+  ```json
+  {
+    "success": true,
+    "suggestion": {
+      "candidate": {
+        "id": "22222222-2222-4222-a222-222222222222",
+        "full_name": "Bob Viewer",
+        "email": "bob@trustvault.local",
+        "role": "VIEWER"
+      },
+      "suggestedPermission": "READ",
+      "rationale": "Classified as Finance confidential material. Zero-trust least-privilege mandates READ-only access to prevent unauthorized modification.",
+      "policyNotice": "Zero-trust security policy: AI recommendations are strictly advisory and never widen access on their own. Document owner confirmation is required."
+    }
+  }
+  ```
+- **Audit Events:** `AI_ACCESS_SUGGESTION` (`ALLOWED`).
+- **Automated Tests:** `tests/security/search-and-ai-suggest.test.ts`.
 
 ---
 

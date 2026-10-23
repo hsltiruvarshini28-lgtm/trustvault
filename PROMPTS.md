@@ -1,6 +1,6 @@
 # TrustVault — AI Usage Record (`PROMPTS.md`)
 
-This log documents AI interactions, prompts, findings, vulnerabilities/limitations identified during development, verification steps, and corrective actions taken.
+This log documents AI interactions, prompts, findings, vulnerabilities/limitations identified during development, verification steps, corrective actions taken, and reusable prompts and context files.
 
 ---
 
@@ -22,7 +22,7 @@ This log documents AI interactions, prompts, findings, vulnerabilities/limitatio
   3. Renamed the package to `trustvault` in `package.json`.
   4. Installed `vitest` and `vite` with `--legacy-peer-deps` and configured `vitest.config.ts` with path aliasing.
   5. Established `.env.example` and verified `.gitignore` to prevent secret leakage.
-- **Git commit:** `155fce9` (feat(scaffold): initialize Next.js 16 App Router with TypeScript strict mode, Tailwind CSS, and Vitest)
+- **Git commit:** [`155fce9`](https://github.com/hsltiruvarshini28-lgtm/trustvault/commit/155fce9) *(feat(scaffold): initialize Next.js 16 App Router with TypeScript strict mode, Tailwind CSS, and Vitest)*
 
 ---
 
@@ -40,7 +40,7 @@ This log documents AI interactions, prompts, findings, vulnerabilities/limitatio
 - **What I changed to fix it:**
   1. Refactored `verifyAuditTrailIntegrity` in `src/lib/audit/audit-logger.ts` to verify the array in its true sequential insertion order rather than arbitrary UUID sorting.
   2. Updated `buildSeedAuditLogs()` in `src/lib/data/store.ts` to use relative timestamps from the past (`Date.now() - 3600000`), ensuring strict chronological monotonicity.
-- **Git commit:** `745c10b` and `45e0d3a` (feat(database) & feat(security): schema, RLS, and cryptographic hash chain verification)
+- **Git commit:** [`745c10b`](https://github.com/hsltiruvarshini28-lgtm/trustvault/commit/745c10b) and [`45e0d3a`](https://github.com/hsltiruvarshini28-lgtm/trustvault/commit/45e0d3a) *(feat(database) & feat(security): schema, RLS, and cryptographic hash chain verification)*
 
 ---
 
@@ -59,7 +59,7 @@ This log documents AI interactions, prompts, findings, vulnerabilities/limitatio
   1. Built server-mediated file streaming via `GET /api/documents/[id]/download` which queries fresh permission state on every request and returns `Cache-Control: no-store`.
   2. Implemented strict role boundaries: Administrators can view metadata and audit logs, but cannot download confidential file contents without explicit owner grants.
   3. Added binary magic-byte validators for PDF (`%PDF-`), ZIP-based Office files (`PK\x03\x04`), and images, rejecting spoofed extensions.
-- **Git commit:** `45e0d3a` and `04e77ee` (feat(security) & feat(api): centralized authorization and server-mediated file delivery)
+- **Git commit:** [`45e0d3a`](https://github.com/hsltiruvarshini28-lgtm/trustvault/commit/45e0d3a) and [`04e77ee`](https://github.com/hsltiruvarshini28-lgtm/trustvault/commit/04e77ee) *(feat(security) & feat(api): centralized authorization and server-mediated file delivery)*
 
 ---
 
@@ -78,7 +78,7 @@ This log documents AI interactions, prompts, findings, vulnerabilities/limitatio
   1. Added Next.js middleware protecting `/dashboard`, `/documents`, `/audit`, `/admin`, and `/security`, redirecting unauthenticated visitors to `/login?message=session_required`.
   2. Created accessible `SignOutModal` with Cancel and Sign Out buttons and role badge display.
   3. Implemented `/api/auth/logout` which invalidates Supabase sessions, clears cookies, and logs the sign-out event in the audit trail.
-- **Git commit:** `5f0a05c` (feat(ui): build enterprise dashboard, secure sign-out confirmation dialog, and route guards)
+- **Git commit:** [`5f0a05c`](https://github.com/hsltiruvarshini28-lgtm/trustvault/commit/5f0a05c) *(feat(ui): build enterprise dashboard, secure sign-out confirmation dialog, and route guards)*
 
 ---
 
@@ -96,4 +96,59 @@ This log documents AI interactions, prompts, findings, vulnerabilities/limitatio
   1. Removed the experimental `cacheComponents: true` and `partialPrefetching: true` from `next.config.ts`, restoring standard dynamic server-side rendering for secure cookie verification.
   2. Built the live Security Center (`/security`) with real-time SHA-256 hash chain verification and automated test matrix telemetry.
   3. Re-ran `npm run build`, completing compilation with zero errors across all 24 routes.
-- **Git commit:** `25a8d45` and `485e866` (test(security) & docs: 29 automated tests, test matrix telemetry, and documentation)
+- **Git commit:** [`25a8d45`](https://github.com/hsltiruvarshini28-lgtm/trustvault/commit/25a8d45) and [`485e866`](https://github.com/hsltiruvarshini28-lgtm/trustvault/commit/485e866) *(test(security) & docs: automated tests, test matrix telemetry, and documentation)*
+
+---
+
+### Entry 6: Multi-Attribute Search & AI Access Recommendation Engine [AI/Authorization]
+- **Date:** 2026-10-23
+- **Prompt:**
+  "Enhance document repository search to support name, owner, category, and date filtering as required by Requirement 7. Add an AI Access Advisor on document access screen where AI recommends recipients and least-privilege permissions, but where the machine never widens access automatically and human owner confirmation is required, generating dual audit events."
+- **What the AI produced:**
+  Created search parameters in `GET /api/documents` and `DocumentsPage`, and added `/api/documents/[id]/ai-suggest`.
+- **Specific error, weakness, or limitation discovered:**
+  1. The AI initially only searched `name` and `description`, ignoring document owners and date ranges. Searching for "Alice" returned zero results unless "Alice" was in the filename.
+  2. In the AI suggestion flow, the AI initially attempted to directly execute the permission grant upon suggestion generation, which violates the strict rule that *"the machine must never widen access on its own"*.
+- **How I checked the issue:**
+  Wrote `tests/security/search-and-ai-suggest.test.ts`. Verified that `recordAiSuggestion` does not alter active permissions until the human owner explicitly invokes `grantPermission`.
+- **What I changed to fix it:**
+  1. Updated `GET /api/documents` and `DocumentsPage` to support `q` (unified search across name, description, owner), `owner` filter, `category` filter, `date`, `startDate`, and `endDate`.
+  2. Implemented the AI Access Advisor card in `ManageAccessClient.tsx` that generates advisory recommendations, records `AI_ACCESS_SUGGESTION` in the audit chain, and requires the owner to click `Confirm & Apply AI Grant` before permission is conferred.
+- **Git commit:** [`31e7bee`](https://github.com/hsltiruvarshini28-lgtm/trustvault/commit/31e7bee) and subsequent search/AI commits *(feat(search & ai): multi-attribute search and human-confirmed AI access recommendation)*
+
+---
+
+## Reusable Prompts, Instructions, and Context Files
+
+The following context files and instruction sets were reused across the project to maintain consistency and defense-in-depth security:
+
+### 1. Zero-Trust Security Invariants Context File (`SYSTEM_CONTEXT.md`)
+```markdown
+You are a Principal Security Architect building TrustVault.
+Under no circumstances may you rely on client-side button hiding or route state for security.
+Every endpoint must enforce:
+1. Server-side session verification via HTTP-only cookie.
+2. Account status check (reject DISABLED accounts with 403 Forbidden).
+3. Authorization decision via centralized canAccessDocument() matrix.
+4. Immediate access revocation: no pre-signed URLs; stream bytes with Cache-Control: no-store.
+5. Append-only SHA-256 tamper-evident cryptographic hash chaining for all ALLOWED and DENIED events.
+6. The machine must NEVER widen access automatically. AI suggestions are strictly advisory and require human confirmation.
+```
+
+### 2. File Ingestion & Anti-Traversal Directive
+```markdown
+When processing uploaded files:
+- Inspect binary magic bytes directly from the Buffer (%PDF-, PK\x03\x04, \x89PNG, \xFF\xD8\xFF).
+- Reject disguised shell scripts or executable files regardless of claimed extension.
+- Strip all path traversal characters (../, ..\, null bytes).
+- Enforce strict 15MB file size limit.
+- Deliver with Content-Disposition: attachment, X-Content-Type-Options: nosniff, and CSP headers.
+```
+
+### 3. Cryptographic Audit Monotonicity Directive
+```markdown
+When building the SHA-256 audit hash chain:
+- Calculate event_hash = SHA-256(canonicalJson({ id, actor_user_id, document_id, action, result, timestamp, request_id, ip_address, user_agent, metadata, previous_hash })).
+- Ensure strict chronological monotonicity: timestamps must never move backwards.
+- Maintain verifyAuditTrailIntegrity() in sequential order rather than arbitrary UUID sorting to prevent sub-millisecond tiebreaker race conditions.
+```

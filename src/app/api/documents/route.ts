@@ -9,22 +9,61 @@ export async function GET(req: NextRequest) {
   }
 
   const { searchParams } = new URL(req.url);
-  const query = searchParams.get('q')?.toLowerCase() || '';
-  const category = searchParams.get('category') || '';
+  const query = searchParams.get('q')?.trim().toLowerCase() || '';
+  const ownerQuery = searchParams.get('owner')?.trim().toLowerCase() || '';
+  const category = searchParams.get('category')?.trim() || '';
+  const exactDate = searchParams.get('date')?.trim() || '';
+  const startDate = searchParams.get('startDate')?.trim() || '';
+  const endDate = searchParams.get('endDate')?.trim() || '';
 
   // Get strictly authorized documents
   let docs = dataStore.getVisibleDocuments(user);
 
+  // 1. General search query (searches name, description, and owner)
   if (query) {
     docs = docs.filter(
       (d) =>
         d.name.toLowerCase().includes(query) ||
-        (d.description && d.description.toLowerCase().includes(query))
+        (d.description && d.description.toLowerCase().includes(query)) ||
+        (d.owner && d.owner.full_name && d.owner.full_name.toLowerCase().includes(query)) ||
+        (d.owner && d.owner.email && d.owner.email.toLowerCase().includes(query))
     );
   }
 
+  // 2. Specific Owner filter
+  if (ownerQuery) {
+    docs = docs.filter(
+      (d) =>
+        (d.owner && d.owner.full_name && d.owner.full_name.toLowerCase().includes(ownerQuery)) ||
+        (d.owner && d.owner.email && d.owner.email.toLowerCase().includes(ownerQuery)) ||
+        d.owner_id.toLowerCase().includes(ownerQuery)
+    );
+  }
+
+  // 3. Category filter
   if (category && category !== 'All') {
     docs = docs.filter((d) => d.category.toLowerCase() === category.toLowerCase());
+  }
+
+  // 4. Exact Date filter (YYYY-MM-DD)
+  if (exactDate) {
+    docs = docs.filter((d) => d.created_at.startsWith(exactDate));
+  }
+
+  // 5. Start Date range filter (YYYY-MM-DD)
+  if (startDate) {
+    const startMs = new Date(startDate).getTime();
+    if (!isNaN(startMs)) {
+      docs = docs.filter((d) => new Date(d.created_at).getTime() >= startMs);
+    }
+  }
+
+  // 6. End Date range filter (YYYY-MM-DD)
+  if (endDate) {
+    const endMs = new Date(endDate + 'T23:59:59.999Z').getTime();
+    if (!isNaN(endMs)) {
+      docs = docs.filter((d) => new Date(d.created_at).getTime() <= endMs);
+    }
   }
 
   // Map to safe response, adding permission indicator
