@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { getCurrentUser } from '@/lib/auth/session';
 import { dataStore } from '@/lib/data/store';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { DocumentsClientSync } from '@/components/documents/DocumentsClientSync';
 import { Badge } from '@/components/ui/Badge';
 import {
   Files,
@@ -97,6 +98,7 @@ export default async function DocumentsPage({
 
   return (
     <DashboardLayout user={user}>
+      <DocumentsClientSync />
       <div className="space-y-5">
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">

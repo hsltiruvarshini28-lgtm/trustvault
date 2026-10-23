@@ -17,7 +17,11 @@ export default async function ManageAccessPage({
   }
 
   const { id } = await params;
-  const doc = dataStore.getDocumentById(id);
+  let doc = dataStore.getDocumentById(id);
+  if (!doc) {
+    dataStore.loadFromDisk();
+    doc = dataStore.getDocumentById(id);
+  }
 
   if (!doc) {
     redirect('/documents');

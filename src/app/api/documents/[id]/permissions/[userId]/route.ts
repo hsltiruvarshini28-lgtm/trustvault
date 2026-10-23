@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentUser } from '@/lib/auth/session';
+import {
+  getCurrentUser,
+  PERMISSIONS_COOKIE_NAME,
+  createPermissionsToken,
+  verifyPermissionsToken,
+} from '@/lib/auth/session';
 import { dataStore } from '@/lib/data/store';
+import { cookies } from 'next/headers';
 
 export async function DELETE(
   req: NextRequest,
@@ -18,8 +24,24 @@ export async function DELETE(
     return NextResponse.json({ error: result.error }, { status: 403 });
   }
 
-  return NextResponse.json({
+  const cookieStore = await cookies();
+  const existingCookie = cookieStore.get(PERMISSIONS_COOKIE_NAME)?.value;
+  const existingPerms = existingCookie ? verifyPermissionsToken(existingCookie) : [];
+  const currentDocPerms = dataStore.getDocumentPermissions(id);
+  const updatedPerms = [...currentDocPerms, ...existingPerms.filter((p) => !currentDocPerms.some((cp) => cp.id === p.id))].slice(0, 30);
+  const permsToken = createPermissionsToken(updatedPerms);
+
+  const response = NextResponse.json({
     success: true,
     message: 'Permission revoked successfully. Subsequent requests will be denied immediately.',
   });
+  response.cookies.set(PERMISSIONS_COOKIE_NAME, permsToken, {
+    path: '/',
+    httpOnly: false,
+    sameSite: 'lax',
+    maxAge: 60 * 60 * 24 * 7,
+  });
+
+  return response;
 }
+

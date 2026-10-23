@@ -17,6 +17,11 @@ import {
   validatePasswordStrength,
   isValidEmail,
 } from '@/lib/auth/password';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
+
+const DISK_STORE_PATH = path.join(os.tmpdir(), 'trustvault_store_v1.json');
 
 // --------------------------------------------------------------------
 // Deterministic Seed Data
@@ -369,6 +374,74 @@ class TrustVaultDataStore {
     }
   }
 
+  public ensureDocument(doc: DocumentRecord): void {
+    if (!this.documents.has(doc.id)) {
+      this.documents.set(doc.id, { ...doc });
+      if (!this.fileStorage.has(doc.storage_path)) {
+        const mockPdfBytes = Buffer.from(
+          `%PDF-1.7\n1 0 obj\n<< /Title (${doc.name}) /Author (${doc.owner?.full_name || 'Owner'}) >>\nendobj\n%%EOF`
+        );
+        this.fileStorage.set(doc.storage_path, mockPdfBytes);
+      }
+      if (doc.owner) {
+        this.ensureProfile({
+          id: doc.owner.id,
+          full_name: doc.owner.full_name,
+          email: doc.owner.email,
+          role: 'OWNER',
+          status: 'ACTIVE',
+          created_at: doc.created_at,
+          updated_at: doc.updated_at,
+        });
+      }
+    }
+  }
+
+  public ensurePermission(grant: DocumentPermissionRecord): void {
+    if (!this.permissions.has(grant.id)) {
+      this.permissions.set(grant.id, { ...grant });
+    }
+  }
+
+  public persistToDisk(): void {
+    try {
+      const data = {
+        documents: Array.from(this.documents.values()),
+        permissions: Array.from(this.permissions.values()),
+        profiles: Array.from(this.profiles.values()),
+      };
+      fs.writeFileSync(DISK_STORE_PATH, JSON.stringify(data), 'utf8');
+    } catch {
+      // Ignore if filesystem is restricted
+    }
+  }
+
+  public loadFromDisk(): void {
+    try {
+      if (fs.existsSync(DISK_STORE_PATH)) {
+        const raw = fs.readFileSync(DISK_STORE_PATH, 'utf8');
+        const data = JSON.parse(raw);
+        if (Array.isArray(data.documents)) {
+          for (const d of data.documents) {
+            this.ensureDocument(d);
+          }
+        }
+        if (Array.isArray(data.permissions)) {
+          for (const p of data.permissions) {
+            this.ensurePermission(p);
+          }
+        }
+        if (Array.isArray(data.profiles)) {
+          for (const pr of data.profiles) {
+            this.ensureProfile(pr);
+          }
+        }
+      }
+    } catch {
+      // Ignore load error
+    }
+  }
+
   public ensureCredential(userId: string, passwordHash: string): void {
     if (!this.credentials.has(userId)) {
       this.credentials.set(userId, passwordHash);
@@ -499,10 +572,16 @@ class TrustVaultDataStore {
   }
 
   public getDocumentById(id: string): DocumentRecord | undefined {
-    return this.documents.get(id);
+    let doc = this.documents.get(id);
+    if (!doc) {
+      this.loadFromDisk();
+      doc = this.documents.get(id);
+    }
+    return doc;
   }
 
   public getVisibleDocuments(user: UserProfile): DocumentRecord[] {
+    this.loadFromDisk();
     if (user.status === 'DISABLED') return [];
 
     const all = Array.from(this.documents.values()).filter((d) => d.status !== 'DELETED');
@@ -530,7 +609,7 @@ class TrustVaultDataStore {
       return { doc: null as unknown as DocumentRecord, error: valResult.error };
     }
 
-    const docId = crypto.randomUUID();
+    const docId = randomUUID();
     const safeName = valResult.sanitizedFilename;
     const storagePath = `${owner.id}/${docId}/${safeName}`;
 
@@ -555,6 +634,7 @@ class TrustVaultDataStore {
 
     this.documents.set(docId, newDoc);
     this.fileStorage.set(storagePath, fileBuffer);
+    this.persistToDisk();
 
     this.appendAuditLog({
       actor_user_id: owner.id,
@@ -939,5 +1019,10 @@ class TrustVaultDataStore {
   }
 }
 
-// Export singleton instance for the app
-export const dataStore = new TrustVaultDataStore();
+// Export singleton instance attached to globalThis to prevent multi-instance desynchronization
+const globalForDataStore = globalThis as unknown as {
+  trustVaultDataStore: TrustVaultDataStore | undefined;
+};
+
+export const dataStore = globalForDataStore.trustVaultDataStore ?? new TrustVaultDataStore();
+globalForDataStore.trustVaultDataStore = dataStore;

@@ -1,11 +1,13 @@
 import { cookies } from 'next/headers';
 import { createHmac, timingSafeEqual } from 'crypto';
-import { UserProfile, UserRole, AccountStatus } from '@/types';
+import { UserProfile, UserRole, AccountStatus, DocumentRecord, DocumentPermissionRecord } from '@/types';
 import { dataStore } from '@/lib/data/store';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 export const SESSION_COOKIE_NAME = 'trustvault_session_id';
 export const ACCOUNT_COOKIE_NAME = 'trustvault_account_record';
+export const DOCUMENTS_COOKIE_NAME = 'trustvault_custom_docs';
+export const PERMISSIONS_COOKIE_NAME = 'trustvault_custom_permissions';
 
 const SESSION_SECRET =
   process.env.SESSION_SECRET ||
@@ -153,12 +155,168 @@ export function verifyAccountRecordToken(token: string): StoredAccount | null {
 }
 
 /**
+ * Creates an HMAC-signed token for custom uploaded documents.
+ * Ensures metadata persistence across ephemeral serverless lambda instances.
+ */
+export function createDocumentsToken(docs: DocumentRecord[]): string {
+  const compact = docs.slice(0, 15).map((d) => ({
+    id: d.id,
+    name: d.name,
+    desc: d.description,
+    cat: d.category,
+    path: d.storage_path,
+    mime: d.mime_type,
+    size: d.file_size,
+    owner_id: d.owner_id,
+    stat: d.status,
+    created: d.created_at,
+    updated: d.updated_at,
+    owner_name: d.owner?.full_name,
+    owner_email: d.owner?.email,
+  }));
+
+  const header = base64UrlEncode(JSON.stringify({ alg: 'HS256', typ: 'DOCS' }));
+  const body = base64UrlEncode(JSON.stringify(compact));
+  const sig = hmacSha256(`${header}.${body}`, SESSION_SECRET);
+  return `${header}.${body}.${sig}`;
+}
+
+/**
+ * Cryptographically verifies and extracts custom uploaded documents.
+ */
+export function verifyDocumentsToken(token: string): DocumentRecord[] {
+  if (!token || typeof token !== 'string') return [];
+  const parts = token.split('.');
+  if (parts.length !== 3) return [];
+
+  const [headerB64, bodyB64, sig] = parts;
+  const expectedSig = hmacSha256(`${headerB64}.${bodyB64}`, SESSION_SECRET);
+
+  if (!safeCompare(sig, expectedSig)) {
+    return [];
+  }
+
+  try {
+    const raw = JSON.parse(base64UrlDecode(bodyB64));
+    if (!Array.isArray(raw)) return [];
+    return raw.map((c: any) => ({
+      id: c.id,
+      name: c.name,
+      description: c.desc || '',
+      category: c.cat || 'General',
+      storage_path: c.path,
+      mime_type: c.mime,
+      file_size: c.size,
+      owner_id: c.owner_id,
+      status: (c.stat as any) || 'ACTIVE',
+      created_at: c.created,
+      updated_at: c.updated,
+      owner: {
+        id: c.owner_id,
+        full_name: c.owner_name || 'Document Owner',
+        email: c.owner_email || 'owner@trustvault.local',
+      },
+    }));
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Creates an HMAC-signed token for custom dynamic permission grants.
+ */
+export function createPermissionsToken(perms: DocumentPermissionRecord[]): string {
+  const compact = perms.slice(0, 30).map((p) => ({
+    id: p.id,
+    doc_id: p.document_id,
+    user_id: p.user_id,
+    perm: p.permission,
+    granted_by: p.granted_by,
+    granted_at: p.granted_at || p.created_at,
+    created: p.created_at,
+    updated: p.updated_at || p.created_at,
+    revoked: p.revoked_at,
+  }));
+
+  const header = base64UrlEncode(JSON.stringify({ alg: 'HS256', typ: 'PERMS' }));
+  const body = base64UrlEncode(JSON.stringify(compact));
+  const sig = hmacSha256(`${header}.${body}`, SESSION_SECRET);
+  return `${header}.${body}.${sig}`;
+}
+
+/**
+ * Cryptographically verifies and extracts dynamic permission grants.
+ */
+export function verifyPermissionsToken(token: string): DocumentPermissionRecord[] {
+  if (!token || typeof token !== 'string') return [];
+  const parts = token.split('.');
+  if (parts.length !== 3) return [];
+
+  const [headerB64, bodyB64, sig] = parts;
+  const expectedSig = hmacSha256(`${headerB64}.${bodyB64}`, SESSION_SECRET);
+
+  if (!safeCompare(sig, expectedSig)) {
+    return [];
+  }
+
+  try {
+    const raw = JSON.parse(base64UrlDecode(bodyB64));
+    if (!Array.isArray(raw)) return [];
+    return raw.map((c: any) => ({
+      id: c.id,
+      document_id: c.doc_id,
+      user_id: c.user_id,
+      permission: c.perm,
+      granted_by: c.granted_by,
+      granted_at: c.granted_at || c.created,
+      created_at: c.created,
+      updated_at: c.updated || c.created,
+      revoked_at: c.revoked || null,
+    }));
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Rehydrates custom uploaded documents and permissions into dataStore from cookies.
+ */
+export async function rehydrateStoreFromCookies(): Promise<void> {
+  try {
+    const cookieStore = await cookies();
+
+    // Rehydrate custom documents
+    const docsCookie = cookieStore.get(DOCUMENTS_COOKIE_NAME)?.value;
+    if (docsCookie) {
+      const customDocs = verifyDocumentsToken(docsCookie);
+      for (const d of customDocs) {
+        dataStore.ensureDocument(d);
+      }
+    }
+
+    // Rehydrate custom permissions
+    const permsCookie = cookieStore.get(PERMISSIONS_COOKIE_NAME)?.value;
+    if (permsCookie) {
+      const customPerms = verifyPermissionsToken(permsCookie);
+      for (const p of customPerms) {
+        dataStore.ensurePermission(p);
+      }
+    }
+  } catch {
+    // Cookie store may not be available in non-HTTP background contexts
+  }
+}
+
+/**
  * Resolves the authenticated user from server-side cookies or verified Supabase session.
  * Enforces account status checks (rejects DISABLED accounts) and restores profiles across
  * serverless lambda instances.
  */
 export async function getCurrentUser(): Promise<UserProfile | null> {
   const cookieStore = await cookies();
+
+  // Rehydrate custom documents & permissions across serverless lambda containers
+  await rehydrateStoreFromCookies();
 
   // 1. Check Supabase Auth session first
   try {

@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentUser } from '@/lib/auth/session';
+import {
+  getCurrentUser,
+  DOCUMENTS_COOKIE_NAME,
+  createDocumentsToken,
+  verifyDocumentsToken,
+} from '@/lib/auth/session';
 import { dataStore } from '@/lib/data/store';
+import { cookies } from 'next/headers';
 
 export async function GET(req: NextRequest) {
   const user = await getCurrentUser();
@@ -128,7 +134,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: error || 'Failed to upload document.' }, { status: 400 });
     }
 
-    return NextResponse.json({ success: true, document: doc }, { status: 201 });
+    // Read existing custom documents and append new upload
+    const cookieStore = await cookies();
+    const existingCookie = cookieStore.get(DOCUMENTS_COOKIE_NAME)?.value;
+    const existingDocs = existingCookie ? verifyDocumentsToken(existingCookie) : [];
+    const updatedDocs = [doc, ...existingDocs.filter((d) => d.id !== doc.id)].slice(0, 15);
+    const docsToken = createDocumentsToken(updatedDocs);
+
+    const response = NextResponse.json({ success: true, document: doc }, { status: 201 });
+    response.cookies.set(DOCUMENTS_COOKIE_NAME, docsToken, {
+      path: '/',
+      httpOnly: false,
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+    });
+
+    return response;
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Upload failed';
     return NextResponse.json({ error: message }, { status: 500 });

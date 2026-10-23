@@ -4,6 +4,7 @@ import { getCurrentUser } from '@/lib/auth/session';
 import { dataStore } from '@/lib/data/store';
 import { canAccessDocument } from '@/lib/auth/authorization';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { DocumentRecoveryHandler } from '@/components/documents/DocumentRecoveryHandler';
 import { Badge } from '@/components/ui/Badge';
 import {
   FileText,
@@ -31,25 +32,16 @@ export default async function DocumentDetailPage({
   }
 
   const { id } = await params;
-  const doc = dataStore.getDocumentById(id);
+  let doc = dataStore.getDocumentById(id);
+  if (!doc) {
+    dataStore.loadFromDisk();
+    doc = dataStore.getDocumentById(id);
+  }
 
   if (!doc) {
     return (
       <DashboardLayout user={user}>
-        <div className="p-8 text-center bg-white border border-[#D0D9DF] rounded shadow-xs max-w-md mx-auto space-y-3">
-          <ShieldAlert className="w-8 h-8 text-[#B64B4B] mx-auto" />
-          <h2 className="text-base font-bold text-[#263C50]">Document Not Found</h2>
-          <p className="text-xs text-[#677582]">
-            The requested document record does not exist or access has been restricted.
-          </p>
-          <Link
-            href="/documents"
-            className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-[#F4F7F9] hover:bg-[#E9EFF3] border border-[#D0D9DF] text-[#263C50] rounded text-xs font-medium"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Return to Documents</span>
-          </Link>
-        </div>
+        <DocumentRecoveryHandler documentId={id} />
       </DashboardLayout>
     );
   }

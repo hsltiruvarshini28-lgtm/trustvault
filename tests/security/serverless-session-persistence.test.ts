@@ -4,9 +4,13 @@ import {
   verifySessionToken,
   createAccountRecordToken,
   verifyAccountRecordToken,
+  createDocumentsToken,
+  verifyDocumentsToken,
+  createPermissionsToken,
+  verifyPermissionsToken,
 } from '@/lib/auth/session';
 import { dataStore } from '@/lib/data/store';
-import { UserProfile } from '@/types';
+import { UserProfile, DocumentRecord, DocumentPermissionRecord } from '@/types';
 import { hashPassword } from '@/lib/auth/password';
 
 describe('Serverless Stateless Session & Account Persistence', () => {
@@ -204,6 +208,103 @@ describe('Serverless Stateless Session & Account Persistence', () => {
       // 5. Wrong password fails
       const badCheck = dataStore.verifyCredentials('john@trustvault.local', 'WrongPassword!');
       expect(badCheck.valid).toBe(false);
+    });
+  });
+
+  describe('Document & Permission Stateless Cookie Persistence', () => {
+    it('creates, verifies, and rehydrates uploaded document records across serverless containers', () => {
+      const mockDoc: DocumentRecord = {
+        id: 'doc-upload-uuid-1234',
+        name: 'Confidential-Audit.pdf',
+        description: 'Uploaded in Container A',
+        category: 'Finance',
+        storage_path: `${mockUser.id}/doc-upload-uuid-1234/Confidential-Audit.pdf`,
+        mime_type: 'application/pdf',
+        file_size: 4096,
+        owner_id: mockUser.id,
+        status: 'ACTIVE',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        owner: {
+          id: mockUser.id,
+          full_name: mockUser.full_name,
+          email: mockUser.email,
+        },
+      };
+
+      // 1. Container A uploads document and creates signed token
+      const token = createDocumentsToken([mockDoc]);
+      expect(typeof token).toBe('string');
+      expect(token.split('.').length).toBe(3);
+
+      // 2. Simulate fresh Container B cold start: memory is reset
+      dataStore.reset();
+      expect(dataStore.getDocumentById('doc-upload-uuid-1234')).toBeUndefined();
+
+      // 3. Container B verifies and rehydrates from cookie
+      const rehydrated = verifyDocumentsToken(token);
+      expect(rehydrated.length).toBe(1);
+      expect(rehydrated[0].id).toBe(mockDoc.id);
+      expect(rehydrated[0].name).toBe(mockDoc.name);
+
+      for (const d of rehydrated) {
+        dataStore.ensureDocument(d);
+      }
+
+      // 4. Container B can now resolve document and download mock file
+      const found = dataStore.getDocumentById('doc-upload-uuid-1234');
+      expect(found).toBeDefined();
+      expect(found?.name).toBe('Confidential-Audit.pdf');
+      expect(dataStore.getFileBuffer(found!.storage_path)).toBeDefined();
+    });
+
+    it('rejects tampered document tokens', () => {
+      const mockDoc: DocumentRecord = {
+        id: 'doc-tamper-001',
+        name: 'Original.pdf',
+        description: 'Original',
+        category: 'Legal',
+        storage_path: 'path/to/doc',
+        mime_type: 'application/pdf',
+        file_size: 1024,
+        owner_id: 'user-001',
+        status: 'ACTIVE',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      const token = createDocumentsToken([mockDoc]);
+      const [header, body, sig] = token.split('.');
+      const tamperedBody = Buffer.from(JSON.stringify([{ id: 'hacked' }]))
+        .toString('base64')
+        .replace(/=/g, '');
+      const tamperedToken = `${header}.${tamperedBody}.${sig}`;
+
+      expect(verifyDocumentsToken(tamperedToken)).toEqual([]);
+    });
+
+    it('creates, verifies, and rehydrates dynamic permissions across containers', () => {
+      const grant: DocumentPermissionRecord = {
+        id: 'perm-uuid-777',
+        document_id: 'doc-001',
+        user_id: 'bob-user-id',
+        permission: 'READ',
+        granted_by: 'alice-user-id',
+        granted_at: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        revoked_at: null,
+      };
+
+      const token = createPermissionsToken([grant]);
+      const rehydrated = verifyPermissionsToken(token);
+      expect(rehydrated.length).toBe(1);
+      expect(rehydrated[0].id).toBe('perm-uuid-777');
+      expect(rehydrated[0].permission).toBe('READ');
+
+      // Test tamper detection
+      const [h, b, s] = token.split('.');
+      expect(verifyPermissionsToken(`${h}.${b}.bad_signature`)).toEqual([]);
     });
   });
 });

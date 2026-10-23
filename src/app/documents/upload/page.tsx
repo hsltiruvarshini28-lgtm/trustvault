@@ -58,10 +58,21 @@ export default function UploadDocumentPage() {
         throw new Error(data.error || 'Upload failed');
       }
 
+      // Persist in localStorage as secondary client safeguard across serverless containers
+      try {
+        const stored = localStorage.getItem('trustvault_local_docs');
+        const list = stored ? JSON.parse(stored) : [];
+        const filtered = Array.isArray(list) ? list.filter((d: any) => d && d.id !== data.document.id) : [];
+        filtered.unshift(data.document);
+        localStorage.setItem('trustvault_local_docs', JSON.stringify(filtered.slice(0, 25)));
+      } catch {
+        // Ignore localStorage error
+      }
+
       setSuccessMsg(`Document "${data.document.name}" uploaded successfully to private storage.`);
       setTimeout(() => {
-        router.push(`/documents/${data.document.id}`);
-      }, 1500);
+        window.location.href = `/documents/${data.document.id}`;
+      }, 1200);
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : 'Upload failed');
       setUploading(false);
