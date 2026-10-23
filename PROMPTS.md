@@ -114,7 +114,7 @@ This log documents AI interactions, prompts, findings, vulnerabilities/limitatio
 - **What I changed to fix it:**
   1. Updated `GET /api/documents` and `DocumentsPage` to support `q` (unified search across name, description, owner), `owner` filter, `category` filter, `date`, `startDate`, and `endDate`.
   2. Implemented the AI Access Advisor card in `ManageAccessClient.tsx` that generates advisory recommendations, records `AI_ACCESS_SUGGESTION` in the audit chain, and requires the owner to click `Confirm & Apply AI Grant` before permission is conferred.
-- **Git commit:** [`31e7bee`](https://github.com/hsltiruvarshini28-lgtm/trustvault/commit/31e7bee) and subsequent search/AI commits *(feat(search & ai): multi-attribute search and human-confirmed AI access recommendation)*
+- **Git commit:** [`69d78df`](https://github.com/hsltiruvarshini28-lgtm/trustvault/commit/69d78df) *(feat: implement multi-attribute search, zero-trust AI access advisor, and full documentation compliance)*
 
 ---
 
