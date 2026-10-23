@@ -40,8 +40,8 @@ TrustVault guarantees **immediate access revocation** via server-mediated file d
    - Comprehensive search supporting **name, owner, category, and date range**.
    - Zero-trust category-aware permission recommendation engine. AI suggestions are strictly advisory and **never widen access automatically**; human owner confirmation is mandatory, generating dual cryptographic audit events.
 
-7. **69 Real Automated Unit & Integration Tests:**
-   - Comprehensive test suite covering authorization matrix, revocation, file validation, audit tampering, user registration, serverless session persistence, and search/AI suggestion isolation with 100% pass rate.
+7. **76 Real Automated Unit & Integration Tests:**
+   - Comprehensive test suite covering authorization matrix, revocation, file validation, audit tampering, user registration, serverless session & cross-container document persistence, and search/AI suggestion isolation with 100% pass rate.
 
 ---
 
