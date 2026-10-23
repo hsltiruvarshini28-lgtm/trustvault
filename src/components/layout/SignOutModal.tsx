@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { LogOut, AlertTriangle, X } from 'lucide-react';
+import { LogOut, X } from 'lucide-react';
 import { UserProfile } from '@/types';
 import { Badge } from '@/components/ui/Badge';
 
@@ -21,51 +21,50 @@ export function SignOutModal({ isOpen, onClose, onConfirm, user, loading }: Sign
       role="dialog"
       aria-modal="true"
       aria-labelledby="signout-modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40"
     >
-      <div className="relative w-full max-w-md p-6 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl text-slate-100">
+      <div className="relative w-full max-w-md p-6 bg-white border border-[#DDE2DF] rounded-md shadow-lg text-[#343A40]">
         <button
           onClick={onClose}
           disabled={loading}
           aria-label="Close dialog"
-          className="absolute top-4 right-4 text-slate-400 hover:text-slate-200 transition-colors"
+          className="absolute top-4 right-4 text-[#737B82] hover:text-[#343A40] transition-colors cursor-pointer"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4" />
         </button>
 
         <div className="flex items-center space-x-3 mb-4">
-          <div className="p-2.5 bg-rose-500/10 border border-rose-500/20 rounded-lg text-rose-400">
-            <LogOut className="w-6 h-6" />
+          <div className="p-2 bg-[#FAF0F0] border border-[#EFCACA] rounded text-[#B64B4B]">
+            <LogOut className="w-5 h-5" />
           </div>
           <div>
-            <h3 id="signout-modal-title" className="text-lg font-bold text-white">
-              Confirm Sign Out
+            <h3 id="signout-modal-title" className="text-base font-semibold text-[#263C50]">
+              Sign Out of Session
             </h3>
-            <p className="text-xs text-slate-400">TrustVault Security Session Management</p>
+            <p className="text-xs text-[#737B82]">TrustVault Session Termination</p>
           </div>
         </div>
 
         {user && (
-          <div className="p-3 my-4 bg-slate-800/80 border border-slate-700/60 rounded-lg flex items-center justify-between">
+          <div className="p-3 my-4 bg-[#F7F7F4] border border-[#DDE2DF] rounded flex items-center justify-between">
             <div>
-              <p className="text-sm font-semibold text-slate-200">{user.full_name}</p>
-              <p className="text-xs text-slate-400">{user.email}</p>
+              <p className="text-xs font-semibold text-[#343A40]">{user.full_name}</p>
+              <p className="text-[11px] text-[#737B82]">{user.email}</p>
             </div>
             <Badge variant={user.role} />
           </div>
         )}
 
-        <p className="text-sm text-slate-300 mb-6 leading-relaxed">
-          Are you sure you want to sign out of TrustVault? Your current authenticated session will be invalidated,
-          and you will need to sign in again to access confidential documents or audit logs.
+        <p className="text-xs text-[#737B82] mb-6 leading-relaxed">
+          Your current authenticated zero-trust session will be invalidated on the server. You will need to re-authenticate with credentials to access confidential documents or the audit log.
         </p>
 
-        <div className="flex items-center justify-end space-x-3">
+        <div className="flex items-center justify-end space-x-2">
           <button
             type="button"
             onClick={onClose}
             disabled={loading}
-            className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg transition-colors cursor-pointer"
+            className="px-3.5 py-1.5 text-xs font-medium text-[#343A40] bg-white hover:bg-[#F7F7F4] border border-[#DDE2DF] rounded transition-colors cursor-pointer"
           >
             Cancel
           </button>
@@ -73,14 +72,14 @@ export function SignOutModal({ isOpen, onClose, onConfirm, user, loading }: Sign
             type="button"
             onClick={onConfirm}
             disabled={loading}
-            className="px-4 py-2 text-sm font-semibold text-white bg-rose-600 hover:bg-rose-500 rounded-lg shadow-sm transition-colors flex items-center space-x-2 cursor-pointer disabled:opacity-50"
+            className="px-3.5 py-1.5 text-xs font-medium text-white bg-[#B64B4B] hover:bg-[#9E3E3E] rounded transition-colors flex items-center space-x-1.5 cursor-pointer disabled:opacity-50"
           >
             {loading ? (
               <span>Signing out...</span>
             ) : (
               <>
-                <LogOut className="w-4 h-4" />
-                <span>Sign Out</span>
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Confirm Sign Out</span>
               </>
             )}
           </button>

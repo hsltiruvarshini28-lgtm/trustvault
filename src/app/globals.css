@@ -1,13 +1,43 @@
 @import "tailwindcss";
 
 :root {
-  --navy-dark: #0B132B;
-  --navy-surface: #1C2541;
-  --navy-border: #3A506B;
-  --teal-accent: #00B4D8;
-  --teal-hover: #0077B6;
-  --background: #0B132B;
-  --foreground: #F8F9FA;
+  /* Refined High-Contrast Enterprise Palette */
+  --color-slate-blue: #263C50;
+  --color-slate-dark: #1A2836;
+  --color-slate-surface: #203142;
+  --color-muted-teal: #527C78;
+  --color-teal-hover: #416863;
+  --color-teal-subtle: #E8F0EE;
+  --color-pale-sage: #E9EFEC;
+  
+  /* Workspace Canvas - Cool Slate Tint for sharp contrast against white cards */
+  --color-canvas-bg: #EDF2F4;
+  --color-white-surface: #FFFFFF;
+  --color-card-subtle: #F6F9FA;
+  
+  /* High-legibility Typography */
+  --color-main-text: #263C50;
+  --color-body-text: #343A40;
+  --color-secondary-text: #677582;
+  --color-borders: #D0D9DF;
+  --color-borders-subtle: #E1E7EB;
+
+  /* Semantic Status Tokens */
+  --color-status-success: #46785C;
+  --color-status-success-bg: #EAF3EE;
+  --color-status-success-border: #BCD5C7;
+
+  --color-status-warning: #A87532;
+  --color-status-warning-bg: #FAF3E8;
+  --color-status-warning-border: #E8D3B2;
+
+  --color-status-error: #B64B4B;
+  --color-status-error-bg: #FBEBEB;
+  --color-status-error-border: #ECC7C7;
+
+  /* Global mappings */
+  --background: var(--color-canvas-bg);
+  --foreground: var(--color-body-text);
 }
 
 body {
@@ -15,20 +45,28 @@ body {
   color: var(--foreground);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom scrollbars for clean enterprise look */
+/* Restrained enterprise scrollbars */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0B132B;
+  background: #EDF2F4;
 }
 ::-webkit-scrollbar-thumb {
-  background: #3A506B;
-  border-radius: 4px;
+  background: #CBD5DC;
+  border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #00B4D8;
+  background: #8FA2AF;
+}
+
+/* Focus styles for keyboard accessibility */
+:focus-visible {
+  outline: 2px solid #527C78;
+  outline-offset: 1px;
 }

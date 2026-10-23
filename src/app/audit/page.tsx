@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { FileCheck2, ShieldCheck, Filter, ShieldAlert, ArrowRight } from 'lucide-react';
+import { FileCheck2, Filter, ShieldAlert } from 'lucide-react';
 import { getCurrentUser } from '@/lib/auth/session';
 import { dataStore } from '@/lib/data/store';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
@@ -30,51 +30,51 @@ export default async function AuditPage({
 
   return (
     <DashboardLayout user={user}>
-      <div className="space-y-6">
+      <div className="space-y-5">
         {/* Header and Live Verification Badge */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
-              <FileCheck2 className="w-6 h-6 text-teal-400" />
+            <h1 className="text-lg font-bold text-[#263C50] tracking-tight flex items-center gap-2">
+              <FileCheck2 className="w-5 h-5 text-[#527C78]" />
               <span>Tamper-Evident Audit Trail</span>
             </h1>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-[#677582] mt-0.5">
               Append-only cryptographic SHA-256 hash-chained sequence recording allowed and denied operations.
             </p>
           </div>
 
-          <div className="flex items-center space-x-3">
-            <div className="p-3 bg-slate-900 border border-slate-800 rounded-xl flex items-center space-x-3">
-              <div className="flex items-center space-x-2">
-                <span className="text-xs text-slate-400 font-medium">Chain Status:</span>
-                <Badge variant={integrity.valid ? 'INTACT' : 'TAMPERED'} />
-              </div>
-              <span className="text-xs font-mono text-slate-500">
-                ({integrity.totalVerified} verified blocks)
+          <div className="flex items-center space-x-2.5">
+            <div className="px-3 py-1.5 bg-white border border-[#D0D9DF] rounded shadow-xs flex items-center space-x-2">
+              <span className="text-[11px] text-[#677582] font-semibold">Chain Status:</span>
+              <Badge variant={integrity.valid ? 'INTACT' : 'TAMPERED'} />
+              <span className="text-[11px] font-mono font-medium text-[#263C50]">
+                ({integrity.totalVerified} blocks)
               </span>
             </div>
 
             <Link
               href="/security"
-              className="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold flex items-center space-x-1.5 transition-colors"
+              className="px-3 py-1.5 rounded bg-white hover:bg-[#F4F7F9] border border-[#D0D9DF] text-[#263C50] text-xs font-semibold flex items-center space-x-1.5 transition-colors shadow-xs"
             >
-              <ShieldAlert className="w-4 h-4 text-teal-400" />
+              <ShieldAlert className="w-3.5 h-3.5 text-[#527C78]" />
               <span>Verify Hashes</span>
             </Link>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="p-4 bg-slate-900 border border-slate-800 rounded-xl flex flex-wrap items-center gap-3">
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-            <Filter className="w-3.5 h-3.5 text-teal-400" />
+        <div className="p-3 bg-white border border-[#D0D9DF] rounded shadow-xs flex flex-wrap items-center gap-2 text-xs">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-[#263C50] flex items-center gap-1.5 mr-1">
+            <Filter className="w-3.5 h-3.5 text-[#527C78]" />
             <span>Filter Result:</span>
           </span>
 
           <Link
             href="/audit"
-            className={`px-3 py-1 rounded-lg text-xs font-semibold transition-colors ${
-              !result ? 'bg-teal-500/20 text-teal-300 border border-teal-500/40' : 'bg-slate-800 text-slate-400 hover:text-white'
+            className={`px-3 py-1 rounded text-xs transition-colors ${
+              !result
+                ? 'bg-[#263C50] text-white border border-[#263C50] font-semibold shadow-xs'
+                : 'bg-[#F4F7F9] text-[#677582] hover:text-[#263C50] hover:bg-[#E9EFF3] border border-[#D0D9DF]'
             }`}
           >
             All Results ({dataStore.getAuditLogs(user).length})
@@ -82,10 +82,10 @@ export default async function AuditPage({
 
           <Link
             href="/audit?result=ALLOWED"
-            className={`px-3 py-1 rounded-lg text-xs font-semibold transition-colors ${
+            className={`px-3 py-1 rounded text-xs transition-colors ${
               result === 'ALLOWED'
-                ? 'bg-emerald-950 text-emerald-300 border border-emerald-700'
-                : 'bg-slate-800 text-slate-400 hover:text-white'
+                ? 'bg-[#EAF3EE] text-[#46785C] border border-[#BCD5C7] font-bold shadow-xs'
+                : 'bg-[#F4F7F9] text-[#677582] hover:text-[#263C50] hover:bg-[#E9EFF3] border border-[#D0D9DF]'
             }`}
           >
             ALLOWED
@@ -93,10 +93,10 @@ export default async function AuditPage({
 
           <Link
             href="/audit?result=DENIED"
-            className={`px-3 py-1 rounded-lg text-xs font-semibold transition-colors ${
+            className={`px-3 py-1 rounded text-xs transition-colors ${
               result === 'DENIED'
-                ? 'bg-rose-950 text-rose-300 border border-rose-700'
-                : 'bg-slate-800 text-slate-400 hover:text-white'
+                ? 'bg-[#FBEBEB] text-[#B64B4B] border border-[#ECC7C7] font-bold shadow-xs'
+                : 'bg-[#F4F7F9] text-[#677582] hover:text-[#263C50] hover:bg-[#E9EFF3] border border-[#D0D9DF]'
             }`}
           >
             DENIED
@@ -104,67 +104,67 @@ export default async function AuditPage({
         </div>
 
         {/* Audit Trail Table */}
-        <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
+        <div className="bg-white border border-[#D0D9DF] rounded shadow-xs overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-slate-300">
-              <thead className="bg-slate-950/80 text-xs font-bold uppercase tracking-wider text-slate-400 border-b border-slate-800">
+            <table className="w-full text-left text-xs text-[#343A40]">
+              <thead className="bg-[#F0F4F7] text-[11px] font-bold uppercase tracking-wider text-[#263C50] border-b border-[#D0D9DF]">
                 <tr>
-                  <th scope="col" className="px-6 py-4">Timestamp (UTC)</th>
-                  <th scope="col" className="px-6 py-4">Action</th>
-                  <th scope="col" className="px-6 py-4">Outcome</th>
-                  <th scope="col" className="px-6 py-4">Actor</th>
-                  <th scope="col" className="px-6 py-4">Target Document</th>
-                  <th scope="col" className="px-6 py-4">Cryptographic Hash Link</th>
+                  <th scope="col" className="px-5 py-3">Timestamp (UTC)</th>
+                  <th scope="col" className="px-5 py-3">Action</th>
+                  <th scope="col" className="px-5 py-3">Outcome</th>
+                  <th scope="col" className="px-5 py-3">Actor</th>
+                  <th scope="col" className="px-5 py-3">Target Resource</th>
+                  <th scope="col" className="px-5 py-3">Cryptographic Hash Link</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/80">
+              <tbody className="divide-y divide-[#D0D9DF]">
                 {logs.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
+                    <td colSpan={6} className="px-5 py-8 text-center text-xs text-[#677582]">
                       No audit records found matching the active filter.
                     </td>
                   </tr>
                 ) : (
                   logs.map((log) => (
-                    <tr key={log.id} className="hover:bg-slate-800/40 transition-colors">
-                      <td className="px-6 py-4 font-mono text-xs text-slate-400 whitespace-nowrap">
+                    <tr key={log.id} className="hover:bg-[#F6F9FA] transition-colors">
+                      <td className="px-5 py-3 font-mono text-[11px] text-[#677582] whitespace-nowrap">
                         {new Date(log.timestamp).toISOString()}
                       </td>
 
-                      <td className="px-6 py-4 font-semibold text-white">
+                      <td className="px-5 py-3 font-bold text-[#263C50]">
                         {log.action}
                       </td>
 
-                      <td className="px-6 py-4">
+                      <td className="px-5 py-3">
                         <Badge variant={log.result} />
                       </td>
 
-                      <td className="px-6 py-4 text-xs">
-                        <div className="font-semibold text-slate-200">
+                      <td className="px-5 py-3">
+                        <div className="font-semibold text-[#263C50]">
                           {log.actor ? log.actor.full_name : 'System/Unauth'}
                         </div>
-                        <div className="text-slate-400 font-mono text-[11px]">
+                        <div className="text-[#677582] font-mono text-[10px]">
                           {log.actor ? log.actor.email : log.ip_address || 'Unknown'}
                         </div>
                       </td>
 
-                      <td className="px-6 py-4 text-xs text-slate-300">
+                      <td className="px-5 py-3 text-xs">
                         {log.document ? (
-                          <span className="font-semibold text-teal-300 truncate block max-w-[180px]">
+                          <span className="font-semibold text-[#263C50] truncate block max-w-[180px]">
                             {log.document.name}
                           </span>
                         ) : (
-                          <span className="text-slate-500">—</span>
+                          <span className="text-[#677582]">—</span>
                         )}
                       </td>
 
-                      <td className="px-6 py-4">
+                      <td className="px-5 py-3">
                         <div className="font-mono text-[10px] space-y-0.5">
-                          <div className="text-slate-400 truncate max-w-[200px]" title={`Event Hash: ${log.event_hash}`}>
-                            <span className="text-teal-400">Curr:</span> {log.event_hash.substring(0, 16)}...
+                          <div className="text-[#263C50] truncate max-w-[200px]" title={`Event Hash: ${log.event_hash}`}>
+                            <span className="text-[#527C78] font-bold">Curr:</span> {log.event_hash.substring(0, 16)}...
                           </div>
-                          <div className="text-slate-500 truncate max-w-[200px]" title={`Previous Hash: ${log.previous_hash}`}>
-                            <span className="text-slate-600">Prev:</span> {log.previous_hash.substring(0, 16)}...
+                          <div className="text-[#677582] truncate max-w-[200px]" title={`Previous Hash: ${log.previous_hash}`}>
+                            <span className="text-[#677582]">Prev:</span> {log.previous_hash.substring(0, 16)}...
                           </div>
                         </div>
                       </td>

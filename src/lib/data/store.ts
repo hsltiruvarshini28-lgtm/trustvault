@@ -8,7 +8,7 @@ import {
 } from '@/types';
 import { canAccessDocument } from '@/lib/auth/authorization';
 import { computeEventHash, verifyAuditTrailIntegrity, GENESIS_HASH } from '@/lib/audit/audit-logger';
-import { validateUploadedFile, sanitizeFilename } from '@/lib/storage/file-validator';
+import { validateUploadedFile } from '@/lib/storage/file-validator';
 
 // --------------------------------------------------------------------
 // Deterministic Seed Data

@@ -126,8 +126,7 @@ export function sanitizeFilename(filename: string): string {
  */
 export function validateUploadedFile(
   buffer: Buffer,
-  originalFilename: string,
-  clientMimeType?: string
+  originalFilename: string
 ): FileValidationResult {
   if (!buffer || buffer.length === 0) {
     return {

@@ -26,6 +26,12 @@ describe('Immediate Access Revocation and Security Scenarios', () => {
     expect(decision.allowed).toBe(true);
   });
 
+  it('Case 17: verifies disabled account (Eve) is denied access immediately', () => {
+    const decision = canAccessDocument(disabledEve, doc1, 'download');
+    expect(decision.allowed).toBe(false);
+    expect(decision.reason).toContain('Account is disabled');
+  });
+
   it('MANDATORY REQUIREMENT: Alice revokes Bob access -> Bob next request immediately DENIED', () => {
     // 1. Initial request succeeds
     const grantBefore = dataStore.getActivePermission(doc1.id, bob.id);

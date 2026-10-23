@@ -1,141 +1,143 @@
 import Link from 'next/link';
-import { Shield, Lock, FileCheck2, ArrowRight, CheckCircle2, UserCheck, KeyRound, Database } from 'lucide-react';
+import { Shield, Lock, FileCheck2, ArrowRight, CheckCircle2, UserCheck, KeyRound } from 'lucide-react';
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
-      {/* Navigation Bar */}
-      <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md px-6 py-4 flex items-center justify-between sticky top-0 z-30">
+    <div className="min-h-screen bg-[#EDF2F4] text-[#343A40] flex flex-col">
+      {/* Top Navigation */}
+      <header className="border-b border-[#25394B] bg-[#1A2836] px-6 py-3 flex items-center justify-between sticky top-0 z-30 select-none">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400">
-            <Shield className="w-6 h-6" />
+          <div className="w-7 h-7 rounded bg-[#527C78] flex items-center justify-center text-white">
+            <Shield className="w-4 h-4 text-white" />
           </div>
-          <div>
-            <span className="font-bold text-xl tracking-tight text-white flex items-center gap-2">
+          <div className="flex items-baseline space-x-2">
+            <span className="font-semibold text-sm tracking-tight text-white">
               TrustVault
-              <span className="text-xs font-mono px-2 py-0.5 bg-teal-950 text-teal-400 border border-teal-800 rounded">
-                ENTERPRISE
-              </span>
+            </span>
+            <span className="text-[10px] font-mono px-1.5 py-0.2 bg-[#253748] text-[#CBD5E1] border border-[#374E63] rounded">
+              ENTERPRISE
             </span>
           </div>
         </div>
 
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-3">
           <Link
             href="/login"
-            className="px-4 py-2 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-500 rounded-lg shadow-lg shadow-teal-950 transition-all flex items-center space-x-2"
+            className="px-3.5 py-1.5 text-xs font-medium text-white bg-[#527C78] hover:bg-[#416863] rounded transition-colors flex items-center space-x-1.5"
           >
             <span>Launch Console</span>
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <main className="flex-1 flex flex-col justify-center px-6 py-16 max-w-6xl mx-auto">
-        <div className="text-center space-y-6 max-w-3xl mx-auto">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-teal-950/60 border border-teal-800/80 text-teal-300 text-xs font-medium tracking-wide">
-            <Lock className="w-3.5 h-3.5 text-teal-400" />
+      {/* Hero Section - Executive Depth */}
+      <section className="bg-[#1E2E3E] border-b border-[#2B4054] text-white py-14 sm:py-20 px-6">
+        <div className="max-w-4xl mx-auto text-center space-y-4">
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded bg-[#293D50] border border-[#3D566E] text-[#E9EFEC] text-xs font-medium">
+            <Lock className="w-3.5 h-3.5 text-[#527C78]" />
             <span>Zero-Trust Architecture & Immediate Access Revocation</span>
           </div>
 
-          <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white leading-tight">
-            Secure Document Sharing with a{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-cyan-300">
-              Real Audit Trail
-            </span>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight leading-tight max-w-3xl mx-auto">
+            Enterprise Document Security with Cryptographic Audit Integrity
           </h1>
 
-          <p className="text-base sm:text-lg text-slate-400 leading-relaxed">
-            Enterprise document vault with centralized authorization (<code className="text-teal-300">canAccessDocument</code>),
-            strict role boundaries (ADMIN, OWNER, VIEWER), server-mediated file delivery, and an append-only
-            cryptographic SHA-256 hash-chained audit trail.
+          <p className="text-xs sm:text-sm text-[#B3C5D3] leading-relaxed max-w-2xl mx-auto">
+            Centralized authorization, isolated private storage, role boundaries (OWNER, VIEWER, ADMIN), and an append-only SHA-256 hash-chained audit trail designed for enterprise compliance and security governance.
           </p>
 
-          <div className="pt-4 flex flex-wrap items-center justify-center gap-4">
+          <div className="pt-3 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/login"
-              className="px-6 py-3.5 text-base font-bold text-white bg-teal-600 hover:bg-teal-500 rounded-xl shadow-xl shadow-teal-950 transition-all flex items-center space-x-2"
+              className="px-4 py-2.5 text-xs font-medium text-white bg-[#527C78] hover:bg-[#416863] rounded shadow-sm transition-colors flex items-center space-x-2 cursor-pointer"
             >
-              <UserCheck className="w-5 h-5" />
-              <span>Enter Demo Console</span>
+              <UserCheck className="w-4 h-4" />
+              <span>Enter Security Console</span>
             </Link>
 
             <Link
               href="/security"
-              className="px-6 py-3.5 text-base font-medium text-slate-300 hover:text-white bg-slate-900 hover:bg-slate-800 border border-slate-700 rounded-xl transition-all flex items-center space-x-2"
+              className="px-4 py-2.5 text-xs font-medium text-[#E9EFEC] bg-[#273B4D] hover:bg-[#314A61] border border-[#43627E] rounded transition-colors flex items-center space-x-2 cursor-pointer"
             >
-              <Shield className="w-5 h-5 text-teal-400" />
+              <Shield className="w-4 h-4 text-[#527C78]" />
               <span>Inspect Security Center</span>
             </Link>
           </div>
         </div>
+      </section>
 
-        {/* Feature Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-20">
-          <div className="p-6 bg-slate-900/60 border border-slate-800 rounded-xl space-y-3">
-            <div className="w-10 h-10 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
-              <KeyRound className="w-5 h-5" />
+      {/* Structured Architecture Cards (Crisp White on Cool Slate Canvas) */}
+      <main className="flex-1 px-6 py-10 max-w-5xl mx-auto w-full space-y-8">
+        <div className="bg-white border border-[#D0D9DF] rounded overflow-hidden shadow-xs">
+          <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[#D0D9DF]">
+            <div className="p-6 space-y-2.5">
+              <div className="flex items-center space-x-2 text-xs font-semibold text-[#263C50]">
+                <div className="w-6 h-6 rounded bg-[#EAF3EE] flex items-center justify-center text-[#527C78]">
+                  <KeyRound className="w-3.5 h-3.5" />
+                </div>
+                <span>Centralized Authorization</span>
+              </div>
+              <p className="text-xs text-[#677582] leading-relaxed">
+                Every sensitive action enforces active Supabase session verification, document ownership, and explicit permission grants. Administrators cannot download confidential files simply by being administrators.
+              </p>
             </div>
-            <h3 className="text-lg font-bold text-white">Centralized Authorization</h3>
-            <p className="text-sm text-slate-400 leading-relaxed">
-              Every sensitive endpoint enforces verified Supabase sessions, document ownership, and active READ/EDIT
-              grants. Admins cannot download confidential files simply by being administrators.
-            </p>
-          </div>
 
-          <div className="p-6 bg-slate-900/60 border border-slate-800 rounded-xl space-y-3">
-            <div className="w-10 h-10 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400">
-              <Lock className="w-5 h-5" />
+            <div className="p-6 space-y-2.5">
+              <div className="flex items-center space-x-2 text-xs font-semibold text-[#263C50]">
+                <div className="w-6 h-6 rounded bg-[#EAF3EE] flex items-center justify-center text-[#527C78]">
+                  <Lock className="w-3.5 h-3.5" />
+                </div>
+                <span>Immediate Access Revocation</span>
+              </div>
+              <p className="text-xs text-[#677582] leading-relaxed">
+                Zero long-lived signed URLs. File downloads are server-mediated and evaluated per request. When an owner revokes permission, subsequent download requests fail immediately with 403 Forbidden.
+              </p>
             </div>
-            <h3 className="text-lg font-bold text-white">Immediate Access Revocation</h3>
-            <p className="text-sm text-slate-400 leading-relaxed">
-              Server-mediated file delivery means zero long-lived signed URLs. When an owner revokes permission, the
-              user&apos;s next request is immediately blocked (403 Forbidden).
-            </p>
-          </div>
 
-          <div className="p-6 bg-slate-900/60 border border-slate-800 rounded-xl space-y-3">
-            <div className="w-10 h-10 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
-              <FileCheck2 className="w-5 h-5" />
+            <div className="p-6 space-y-2.5">
+              <div className="flex items-center space-x-2 text-xs font-semibold text-[#263C50]">
+                <div className="w-6 h-6 rounded bg-[#EAF3EE] flex items-center justify-center text-[#527C78]">
+                  <FileCheck2 className="w-3.5 h-3.5" />
+                </div>
+                <span>Tamper-Evident Audit Trail</span>
+              </div>
+              <p className="text-xs text-[#677582] leading-relaxed">
+                Append-only log chained with canonical SHA-256 cryptographic hashes. Altered, missing, or out-of-order records are flagged immediately by the integrity verification engine.
+              </p>
             </div>
-            <h3 className="text-lg font-bold text-white">Tamper-Evident Audit Trail</h3>
-            <p className="text-sm text-slate-400 leading-relaxed">
-              Append-only audit trail chained via SHA-256 cryptographic hashes. Altered, removed, or reordered records
-              are immediately flagged by the verification utility.
-            </p>
           </div>
         </div>
 
-        {/* Verification Checkpoints */}
-        <div className="mt-16 p-6 bg-slate-900/40 border border-slate-800/80 rounded-2xl max-w-4xl mx-auto">
-          <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 text-center mb-4">
-            Security Guarantee Highlights
-          </h4>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-slate-300">
+        {/* Security Controls Checklist */}
+        <div className="p-6 bg-white border border-[#D0D9DF] rounded shadow-xs">
+          <div className="text-xs font-semibold uppercase tracking-wider text-[#263C50] mb-3.5 pb-2 border-b border-[#D0D9DF]">
+            Core Security Controls & Defensive Safeguards
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-[#343A40]">
             <div className="flex items-center space-x-2.5">
-              <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0" />
-              <span>Private bucket storage with MIME & Magic Bytes inspection</span>
+              <CheckCircle2 className="w-4 h-4 text-[#46785C] shrink-0" />
+              <span>Private storage with magic-byte validation and sanitized file paths</span>
             </div>
             <div className="flex items-center space-x-2.5">
-              <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0" />
-              <span>Full automated test suite with 24+ vulnerability scenarios</span>
+              <CheckCircle2 className="w-4 h-4 text-[#46785C] shrink-0" />
+              <span>Automated test matrix covering 24+ vulnerability scenarios</span>
             </div>
             <div className="flex items-center space-x-2.5">
-              <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0" />
-              <span>No-cache, nosniff, and safe Content-Disposition headers</span>
+              <CheckCircle2 className="w-4 h-4 text-[#46785C] shrink-0" />
+              <span>Defensive security headers: no-cache, nosniff, safe Content-Disposition</span>
             </div>
             <div className="flex items-center space-x-2.5">
-              <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0" />
-              <span>Auditing on both ALLOWED and DENIED execution paths</span>
+              <CheckCircle2 className="w-4 h-4 text-[#46785C] shrink-0" />
+              <span>Dual-path telemetry logging both ALLOWED and DENIED operations</span>
             </div>
           </div>
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800/80 py-6 px-6 text-center text-xs text-slate-500">
-        TrustVault — Enterprise Secure Document Sharing & Tamper-Evident Audit System.
+      <footer className="border-t border-[#25394B] py-5 px-6 text-center text-xs text-[#7B90A0] bg-[#1A2836]">
+        TrustVault — Enterprise Secure Document Sharing & Cryptographic Audit Verification System.
       </footer>
     </div>
   );

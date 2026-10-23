@@ -70,7 +70,7 @@ export default function UploadDocumentPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
+      <div className="min-h-screen bg-[#EDF2F4] text-[#263C50] flex items-center justify-center text-xs">
         Loading upload console...
       </div>
     );
@@ -78,46 +78,46 @@ export default function UploadDocumentPage() {
 
   return (
     <DashboardLayout user={user}>
-      <div className="max-w-2xl mx-auto space-y-6">
+      <div className="max-w-2xl mx-auto space-y-5">
         <div className="flex items-center space-x-3">
           <Link
             href="/documents"
-            className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+            className="p-1.5 rounded bg-white hover:bg-[#F4F7F9] border border-[#D0D9DF] text-[#263C50] transition-colors"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-4 h-4" />
           </Link>
           <div>
-            <h1 className="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
-              <UploadCloud className="w-6 h-6 text-teal-400" />
+            <h1 className="text-lg font-bold text-[#263C50] tracking-tight flex items-center gap-2">
+              <UploadCloud className="w-5 h-5 text-[#527C78]" />
               <span>Secure Document Ingestion</span>
             </h1>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-[#677582] mt-0.5">
               Files are sanitized, magic-byte validated, and deposited into an isolated private bucket.
             </p>
           </div>
         </div>
 
         {errorMsg && (
-          <div className="p-4 bg-rose-950/60 border border-rose-700/80 rounded-xl flex items-center space-x-3 text-rose-300 text-sm">
-            <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0" />
+          <div className="p-3 bg-[#FBEBEB] border border-[#ECC7C7] rounded flex items-center space-x-2 text-[#B64B4B] text-xs">
+            <AlertTriangle className="w-4 h-4 text-[#B64B4B] shrink-0" />
             <span>{errorMsg}</span>
           </div>
         )}
 
         {successMsg && (
-          <div className="p-4 bg-emerald-950/60 border border-emerald-700/80 rounded-xl flex items-center space-x-3 text-emerald-300 text-sm">
-            <FileCheck2 className="w-5 h-5 text-emerald-400 shrink-0" />
+          <div className="p-3 bg-[#EAF3EE] border border-[#BCD5C7] rounded flex items-center space-x-2 text-[#46785C] text-xs">
+            <FileCheck2 className="w-4 h-4 text-[#46785C] shrink-0" />
             <span>{successMsg}</span>
           </div>
         )}
 
-        <form onSubmit={handleUpload} className="p-6 bg-slate-900 border border-slate-800 rounded-xl space-y-5">
+        <form onSubmit={handleUpload} className="p-6 bg-white border border-[#D0D9DF] rounded shadow-xs space-y-4">
           {/* File Picker Zone */}
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-2">
+            <label className="block text-[11px] font-bold text-[#263C50] uppercase mb-1.5">
               Select Document File (Max 15MB)
             </label>
-            <div className="border-2 border-dashed border-slate-700 hover:border-teal-500/60 rounded-xl p-6 text-center bg-slate-950/40 transition-colors">
+            <div className="border border-dashed border-[#D0D9DF] hover:border-[#527C78] rounded p-6 text-center bg-[#F6F9FA] hover:bg-[#EAF0F4] transition-colors">
               <input
                 type="file"
                 id="file-upload-input"
@@ -126,16 +126,16 @@ export default function UploadDocumentPage() {
                 required
                 className="hidden"
               />
-              <label htmlFor="file-upload-input" className="cursor-pointer block space-y-2">
-                <UploadCloud className="w-8 h-8 text-teal-400 mx-auto" />
-                <div className="text-sm font-semibold text-white">
-                  {file ? file.name : 'Click to choose file or drag and drop'}
+              <label htmlFor="file-upload-input" className="cursor-pointer block space-y-1.5">
+                <UploadCloud className="w-8 h-8 text-[#527C78] mx-auto" />
+                <div className="text-xs font-bold text-[#263C50]">
+                  {file ? file.name : 'Click to select file or drag and drop'}
                 </div>
-                <p className="text-xs text-slate-400">
-                  Permitted: PDF, DOCX, XLSX, PPTX, TXT, PNG, JPG (verified via binary magic bytes)
+                <p className="text-[11px] text-[#677582]">
+                  Permitted: PDF, DOCX, XLSX, PPTX, TXT, PNG, JPG (verified via binary signatures)
                 </p>
                 {file && (
-                  <p className="text-xs text-teal-300 font-mono">
+                  <p className="text-[11px] text-[#527C78] font-mono font-medium">
                     Size: {(file.size / 1024).toFixed(1)} KB
                   </p>
                 )}
@@ -145,14 +145,14 @@ export default function UploadDocumentPage() {
 
           {/* Category Dropdown */}
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5" htmlFor="category-select">
+            <label className="block text-[11px] font-bold text-[#263C50] uppercase mb-1" htmlFor="category-select">
               Classification Category
             </label>
             <select
               id="category-select"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-lg bg-slate-800 border border-slate-700 text-white text-sm focus:outline-hidden focus:border-teal-500"
+              className="w-full px-3 py-1.5 rounded bg-white border border-[#D0D9DF] text-xs text-[#263C50] focus:outline-hidden focus:border-[#527C78] focus:ring-1 focus:ring-[#527C78]"
             >
               <option value="Finance">Finance</option>
               <option value="Engineering">Engineering</option>
@@ -164,7 +164,7 @@ export default function UploadDocumentPage() {
 
           {/* Description */}
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5" htmlFor="description-input">
+            <label className="block text-[11px] font-bold text-[#263C50] uppercase mb-1" htmlFor="description-input">
               Document Description / Confidentiality Context
             </label>
             <textarea
@@ -173,28 +173,27 @@ export default function UploadDocumentPage() {
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
               placeholder="e.g., Confidential Q3 internal audit report for executive review..."
-              className="w-full px-3.5 py-2.5 rounded-lg bg-slate-800 border border-slate-700 text-white placeholder-slate-500 text-sm focus:outline-hidden focus:border-teal-500"
+              className="w-full px-3 py-1.5 rounded bg-white border border-[#D0D9DF] text-xs text-[#263C50] placeholder-[#677582] focus:outline-hidden focus:border-[#527C78] focus:ring-1 focus:ring-[#527C78]"
             />
           </div>
 
-          <div className="p-3.5 bg-slate-950/60 border border-slate-800 rounded-lg flex items-start space-x-2.5 text-xs text-slate-400">
-            <ShieldAlert className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+          <div className="p-3 bg-[#F6F9FA] border border-[#D0D9DF] rounded flex items-start space-x-2 text-[11px] text-[#677582]">
+            <ShieldAlert className="w-3.5 h-3.5 text-[#A87532] shrink-0 mt-0.5" />
             <span>
-              Server-side file validation automatically scans header signatures. Executables disguised as PDFs or
-              files containing path traversal sequences (<code className="text-slate-300">../</code>) will be rejected.
+              Server-side file validation inspects magic bytes. Files with spoofed extensions or directory traversal paths (<code className="text-[#263C50] font-semibold">../</code>) will be rejected.
             </span>
           </div>
 
           <button
             type="submit"
             disabled={uploading || !file}
-            className="w-full py-3 px-4 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-semibold text-sm shadow-md transition-colors flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50"
+            className="w-full py-2 px-3 rounded bg-[#527C78] hover:bg-[#416863] text-white font-medium text-xs transition-colors flex items-center justify-center space-x-1.5 shadow-xs cursor-pointer disabled:opacity-50"
           >
             {uploading ? (
               <span>Validating and Storing Document...</span>
             ) : (
               <>
-                <UploadCloud className="w-4 h-4" />
+                <UploadCloud className="w-3.5 h-3.5" />
                 <span>Upload to Secure Vault</span>
               </>
             )}

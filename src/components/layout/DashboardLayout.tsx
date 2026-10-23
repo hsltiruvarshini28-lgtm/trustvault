@@ -14,7 +14,7 @@ export function DashboardLayout({ user, children }: DashboardLayoutProps) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
+    <div className="min-h-screen bg-[#F7F7F4] text-[#343A40] flex flex-col">
       <Header user={user} onToggleSidebar={() => setMobileSidebarOpen(!mobileSidebarOpen)} />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar
@@ -22,8 +22,8 @@ export function DashboardLayout({ user, children }: DashboardLayoutProps) {
           isOpenMobile={mobileSidebarOpen}
           onCloseMobile={() => setMobileSidebarOpen(false)}
         />
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-slate-950">
-          <div className="max-w-7xl mx-auto">{children}</div>
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-7 bg-[#F7F7F4]">
+          <div className="max-w-6xl mx-auto">{children}</div>
         </main>
       </div>
     </div>

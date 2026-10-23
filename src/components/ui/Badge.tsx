@@ -10,7 +10,11 @@ export type BadgeVariant =
   | 'VIEWER'
   | 'ACTIVE'
   | 'DISABLED'
-  | 'METADATA_ONLY';
+  | 'METADATA_ONLY'
+  | 'INTACT'
+  | 'TAMPERED'
+  | 'PASS'
+  | 'FAIL';
 
 interface BadgeProps {
   variant: BadgeVariant | string;
@@ -22,45 +26,50 @@ export function Badge({ variant, children, size = 'sm' }: BadgeProps) {
   const text = children || variant;
   const upper = (typeof text === 'string' ? text : variant).toUpperCase();
 
-  let colorClasses = 'bg-slate-800 text-slate-200 border-slate-700';
+  let colorClasses = 'bg-[#F7F7F4] text-[#343A40] border-[#DDE2DF]';
 
   switch (upper) {
     case 'ALLOWED':
     case 'ACTIVE':
     case 'INTACT':
-      colorClasses = 'bg-emerald-950/80 text-emerald-400 border-emerald-700/60';
+    case 'PASS':
+      colorClasses = 'bg-[#EDF4F0] text-[#46785C] border-[#C6D8CD]';
       break;
     case 'DENIED':
     case 'DISABLED':
     case 'TAMPERED':
     case 'DELETED':
-      colorClasses = 'bg-rose-950/80 text-rose-400 border-rose-700/60';
+    case 'FAIL':
+      colorClasses = 'bg-[#FAF0F0] text-[#B64B4B] border-[#EFCACA]';
       break;
     case 'READ':
-      colorClasses = 'bg-sky-950/80 text-sky-400 border-sky-700/60';
+      colorClasses = 'bg-[#EEF3F7] text-[#263C50] border-[#CFDBE5]';
       break;
     case 'EDIT':
-      colorClasses = 'bg-amber-950/80 text-amber-400 border-amber-700/60';
+      colorClasses = 'bg-[#FAF4EC] text-[#A87532] border-[#EEDBBE]';
       break;
     case 'OWNER':
-      colorClasses = 'bg-purple-950/80 text-purple-400 border-purple-700/60';
+      colorClasses = 'bg-[#E9EFEC] text-[#263C50] border-[#C4D1CB] font-semibold';
       break;
     case 'ADMIN':
-      colorClasses = 'bg-indigo-950/80 text-indigo-400 border-indigo-700/60';
+      colorClasses = 'bg-[#E5ECF0] text-[#263C50] border-[#C5D3DC] font-semibold';
       break;
     case 'VIEWER':
-      colorClasses = 'bg-cyan-950/80 text-cyan-400 border-cyan-700/60';
+      colorClasses = 'bg-[#F7F7F4] text-[#527C78] border-[#DDE2DF]';
       break;
     case 'METADATA_ONLY':
-      colorClasses = 'bg-slate-900 text-slate-400 border-slate-700';
+      colorClasses = 'bg-[#F7F7F4] text-[#737B82] border-[#DDE2DF]';
       break;
   }
 
-  const sizeClasses = size === 'sm' ? 'px-2 py-0.5 text-xs font-semibold' : 'px-3 py-1 text-sm font-semibold';
+  const sizeClasses =
+    size === 'sm'
+      ? 'px-2 py-0.5 text-[11px] font-medium'
+      : 'px-2.5 py-1 text-xs font-medium';
 
   return (
     <span
-      className={`inline-flex items-center justify-center rounded-md border tracking-wide uppercase ${colorClasses} ${sizeClasses}`}
+      className={`inline-flex items-center justify-center rounded border whitespace-nowrap leading-tight ${colorClasses} ${sizeClasses}`}
     >
       {text}
     </span>

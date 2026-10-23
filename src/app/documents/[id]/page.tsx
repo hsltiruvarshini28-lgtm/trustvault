@@ -9,13 +9,13 @@ import {
   FileText,
   Download,
   KeyRound,
-  Trash2,
   ArrowLeft,
   Lock,
   Calendar,
   User,
   ShieldAlert,
   HardDrive,
+  ExternalLink,
 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -36,17 +36,17 @@ export default async function DocumentDetailPage({
   if (!doc) {
     return (
       <DashboardLayout user={user}>
-        <div className="p-12 text-center bg-slate-900 border border-slate-800 rounded-xl max-w-lg mx-auto space-y-4">
-          <ShieldAlert className="w-12 h-12 text-rose-400 mx-auto" />
-          <h2 className="text-xl font-bold text-white">Document Not Found</h2>
-          <p className="text-sm text-slate-400">
-            The requested document does not exist, or access has been restricted.
+        <div className="p-8 text-center bg-white border border-[#D0D9DF] rounded shadow-xs max-w-md mx-auto space-y-3">
+          <ShieldAlert className="w-8 h-8 text-[#B64B4B] mx-auto" />
+          <h2 className="text-base font-bold text-[#263C50]">Document Not Found</h2>
+          <p className="text-xs text-[#677582]">
+            The requested document record does not exist or access has been restricted.
           </p>
           <Link
             href="/documents"
-            className="inline-flex items-center space-x-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-sm"
+            className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-[#F4F7F9] hover:bg-[#E9EFF3] border border-[#D0D9DF] text-[#263C50] rounded text-xs font-medium"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-3.5 h-3.5" />
             <span>Return to Documents</span>
           </Link>
         </div>
@@ -60,18 +60,18 @@ export default async function DocumentDetailPage({
   if (!decision.allowed) {
     return (
       <DashboardLayout user={user}>
-        <div className="p-12 text-center bg-slate-900 border border-rose-800/60 rounded-xl max-w-lg mx-auto space-y-4">
-          <ShieldAlert className="w-12 h-12 text-rose-500 mx-auto" />
-          <h2 className="text-xl font-bold text-white">Access Denied (403 Forbidden)</h2>
-          <p className="text-sm text-slate-300">{decision.reason}</p>
-          <p className="text-xs text-slate-500">
+        <div className="p-8 text-center bg-white border border-[#ECC7C7] rounded shadow-xs max-w-md mx-auto space-y-3">
+          <ShieldAlert className="w-8 h-8 text-[#B64B4B] mx-auto" />
+          <h2 className="text-base font-bold text-[#B64B4B]">Access Denied (403 Forbidden)</h2>
+          <p className="text-xs text-[#343A40]">{decision.reason}</p>
+          <p className="text-[11px] text-[#677582]">
             This unauthorized access attempt has been recorded in the tamper-evident audit trail.
           </p>
           <Link
             href="/documents"
-            className="inline-flex items-center space-x-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-sm"
+            className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-[#F4F7F9] hover:bg-[#E9EFF3] border border-[#D0D9DF] text-[#263C50] rounded text-xs font-medium"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-3.5 h-3.5" />
             <span>Return to Repository</span>
           </Link>
         </div>
@@ -92,36 +92,37 @@ export default async function DocumentDetailPage({
 
   return (
     <DashboardLayout user={user}>
-      <div className="space-y-6">
-        {/* Navigation & Actions Header */}
+      <div className="space-y-5">
+        {/* Navigation & Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center space-x-3">
             <Link
               href="/documents"
-              className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+              className="p-1.5 rounded bg-white hover:bg-[#F4F7F9] border border-[#D0D9DF] text-[#263C50] transition-colors"
+              title="Back to Documents"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-4 h-4" />
             </Link>
             <div>
               <div className="flex items-center space-x-2">
-                <h1 className="text-2xl font-extrabold text-white tracking-tight truncate max-w-md">
+                <h1 className="text-lg font-bold text-[#263C50] tracking-tight truncate max-w-md">
                   {doc.name}
                 </h1>
                 <Badge variant={accessLevel} />
               </div>
-              <p className="text-xs text-slate-400 mt-0.5">Classification: {doc.category}</p>
+              <p className="text-[11px] text-[#677582] mt-0.5">Classification: {doc.category}</p>
             </div>
           </div>
 
-          <div className="flex items-center space-x-3 w-full sm:w-auto">
+          <div className="flex items-center space-x-2 w-full sm:w-auto">
             {/* Manage Sharing (Owner Only) */}
             {isOwner && (
               <Link
                 href={`/documents/${doc.id}/access`}
-                className="px-3.5 py-2 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-sm font-semibold flex items-center space-x-2 transition-colors"
+                className="px-3.5 py-1.5 rounded bg-[#FAF3E8] hover:bg-[#F5E8D3] text-[#A87532] border border-[#E8D3B2] text-xs font-semibold flex items-center space-x-1.5 transition-colors"
               >
-                <KeyRound className="w-4 h-4" />
-                <span>Manage Access</span>
+                <KeyRound className="w-3.5 h-3.5" />
+                <span>Manage Permissions</span>
               </Link>
             )}
 
@@ -129,68 +130,69 @@ export default async function DocumentDetailPage({
             {canDownload ? (
               <a
                 href={`/api/documents/${doc.id}/download`}
-                className="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-500 text-white text-sm font-semibold shadow-md flex items-center space-x-2 transition-colors cursor-pointer"
+                className="px-3.5 py-1.5 rounded bg-[#527C78] hover:bg-[#416863] text-white text-xs font-medium flex items-center space-x-1.5 transition-colors shadow-xs cursor-pointer"
               >
-                <Download className="w-4 h-4" />
+                <Download className="w-3.5 h-3.5" />
                 <span>Download File</span>
               </a>
             ) : (
-              <div className="px-3 py-2 rounded-lg bg-slate-800/80 border border-slate-700 text-xs text-slate-400 flex items-center space-x-1.5">
-                <Lock className="w-3.5 h-3.5 text-slate-500" />
-                <span>Content Restricted (Metadata Only)</span>
+              <div className="px-3 py-1.5 rounded bg-[#F4F7F9] border border-[#D0D9DF] text-xs text-[#677582] flex items-center space-x-1.5">
+                <Lock className="w-3.5 h-3.5 text-[#677582]" />
+                <span>Confidential (Metadata Only)</span>
               </div>
             )}
           </div>
         </div>
 
-        {/* Metadata Details Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-2 space-y-6">
+        {/* Content Details */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="md:col-span-2 space-y-5">
             {/* Description & Overview */}
-            <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl space-y-3">
-              <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400">
+            <div className="p-5 bg-white border border-[#D0D9DF] rounded shadow-xs space-y-2">
+              <h2 className="text-[11px] font-bold uppercase tracking-wider text-[#263C50]">
                 Document Overview
               </h2>
-              <p className="text-sm text-slate-200 leading-relaxed">
+              <p className="text-xs text-[#343A40] leading-relaxed">
                 {doc.description || 'No description provided for this document.'}
               </p>
             </div>
 
             {/* File Preview Container */}
-            <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl space-y-3">
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400">
-                  Server-Mediated Preview
+            <div className="p-5 bg-white border border-[#D0D9DF] rounded shadow-xs space-y-3">
+              <div className="flex items-center justify-between pb-2 border-b border-[#D0D9DF]">
+                <h2 className="text-[11px] font-bold uppercase tracking-wider text-[#263C50]">
+                  Server-Mediated File Inspection
                 </h2>
-                <span className="text-xs text-slate-500">Fresh authorization verified on load</span>
+                <span className="text-[10px] text-[#677582]">Real-time authorization verified</span>
               </div>
 
               {canDownload ? (
-                <div className="border border-slate-800 rounded-lg overflow-hidden bg-slate-950 p-6 text-center space-y-3">
-                  <FileText className="w-12 h-12 text-teal-400 mx-auto" />
-                  <p className="text-sm font-semibold text-slate-200">{doc.name}</p>
-                  <p className="text-xs text-slate-400">
-                    MIME Type: <code className="text-slate-300 font-mono">{doc.mime_type}</code>
+                <div className="border border-[#D0D9DF] rounded bg-[#F6F9FA] p-6 text-center space-y-2">
+                  <FileText className="w-8 h-8 text-[#527C78] mx-auto" />
+                  <p className="text-xs font-bold text-[#263C50]">{doc.name}</p>
+                  <p className="text-[11px] text-[#677582]">
+                    MIME Type: <code className="text-[#263C50] font-mono font-medium">{doc.mime_type}</code>
                   </p>
                   <div className="pt-2">
                     <a
                       href={`/api/documents/${doc.id}/preview`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-teal-300 transition-colors"
+                      className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded bg-white hover:bg-[#EAF0F4] border border-[#D0D9DF] text-xs font-semibold text-[#263C50] transition-colors"
                     >
+                      <ExternalLink className="w-3.5 h-3.5 text-[#527C78]" />
                       <span>Open Inline Viewer in New Tab</span>
                     </a>
                   </div>
                 </div>
               ) : (
-                <div className="p-8 text-center bg-slate-950 border border-slate-800/80 rounded-lg space-y-2">
-                  <Lock className="w-8 h-8 text-slate-600 mx-auto" />
-                  <p className="text-sm font-medium text-slate-400">
-                    File contents are confidential.
+                <div className="p-6 text-center bg-[#F6F9FA] border border-[#D0D9DF] rounded space-y-1.5">
+                  <Lock className="w-6 h-6 text-[#677582] mx-auto" />
+                  <p className="text-xs font-bold text-[#263C50]">
+                    File contents are confidential
                   </p>
-                  <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                    Administrator role grants metadata visibility only. Content inspection requires explicit
+                  <p className="text-[11px] text-[#677582] max-w-sm mx-auto leading-relaxed">
+                    Administrator role grants metadata observability only. Content inspection requires explicit
                     READ or EDIT permission granted by the document owner.
                   </p>
                 </div>
@@ -199,40 +201,40 @@ export default async function DocumentDetailPage({
           </div>
 
           {/* Security & Provenance Sidebar */}
-          <div className="space-y-6">
-            <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl space-y-4">
-              <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400">
+          <div className="space-y-5">
+            <div className="p-5 bg-white border border-[#D0D9DF] rounded shadow-xs space-y-3.5">
+              <h2 className="text-[11px] font-bold uppercase tracking-wider text-[#263C50] pb-2 border-b border-[#D0D9DF]">
                 Security Provenance
               </h2>
 
-              <div className="space-y-3 text-sm">
-                <div>
-                  <span className="text-xs text-slate-500 block">Owner</span>
-                  <div className="flex items-center space-x-2 mt-0.5 text-slate-200">
-                    <User className="w-4 h-4 text-slate-400" />
-                    <span>{doc.owner ? doc.owner.full_name : 'Unknown'}</span>
+              <div className="space-y-2.5 text-xs">
+                <div className="pb-2.5 border-b border-[#D0D9DF]">
+                  <span className="text-[10px] text-[#677582] uppercase font-semibold block">Owner</span>
+                  <div className="flex items-center space-x-1.5 mt-0.5 text-[#263C50]">
+                    <User className="w-3.5 h-3.5 text-[#527C78]" />
+                    <span className="font-semibold">{doc.owner ? doc.owner.full_name : 'Unknown'}</span>
                   </div>
                 </div>
 
-                <div>
-                  <span className="text-xs text-slate-500 block">Isolated Storage Path</span>
-                  <div className="flex items-center space-x-2 mt-0.5 text-slate-400 font-mono text-xs truncate">
-                    <HardDrive className="w-4 h-4 text-slate-500 shrink-0" />
+                <div className="pb-2.5 border-b border-[#D0D9DF]">
+                  <span className="text-[10px] text-[#677582] uppercase font-semibold block">Storage Bucket Path</span>
+                  <div className="flex items-center space-x-1.5 mt-0.5 text-[#677582] font-mono text-[11px] truncate">
+                    <HardDrive className="w-3.5 h-3.5 text-[#527C78] shrink-0" />
                     <span className="truncate">{doc.storage_path}</span>
                   </div>
                 </div>
 
-                <div>
-                  <span className="text-xs text-slate-500 block">File Size</span>
-                  <p className="text-slate-200 font-mono text-xs mt-0.5">
+                <div className="pb-2.5 border-b border-[#D0D9DF]">
+                  <span className="text-[10px] text-[#677582] uppercase font-semibold block">File Size</span>
+                  <p className="text-[#263C50] font-mono text-xs font-medium mt-0.5">
                     {(doc.file_size / 1024).toFixed(1)} KB ({doc.file_size} bytes)
                   </p>
                 </div>
 
                 <div>
-                  <span className="text-xs text-slate-500 block">Uploaded Date</span>
-                  <div className="flex items-center space-x-2 mt-0.5 text-slate-300 text-xs">
-                    <Calendar className="w-4 h-4 text-slate-500" />
+                  <span className="text-[10px] text-[#677582] uppercase font-semibold block">Created Date</span>
+                  <div className="flex items-center space-x-1.5 mt-0.5 text-[#343A40] text-xs">
+                    <Calendar className="w-3.5 h-3.5 text-[#527C78]" />
                     <span>{new Date(doc.created_at).toLocaleString()}</span>
                   </div>
                 </div>

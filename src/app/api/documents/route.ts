@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth/session';
 import { dataStore } from '@/lib/data/store';
-import { canAccessDocument } from '@/lib/auth/authorization';
 
 export async function GET(req: NextRequest) {
   const user = await getCurrentUser();
