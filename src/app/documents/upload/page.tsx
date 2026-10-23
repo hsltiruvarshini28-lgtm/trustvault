@@ -172,7 +172,7 @@ export default function UploadDocumentPage() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
-              placeholder="e.g., Confidential Q3 internal audit report for executive review..."
+              placeholder="Enter document description or confidentiality context..."
               className="w-full px-3 py-1.5 rounded bg-white border border-[#D0D9DF] text-xs text-[#263C50] placeholder-[#677582] focus:outline-hidden focus:border-[#527C78] focus:ring-1 focus:ring-[#527C78]"
             />
           </div>

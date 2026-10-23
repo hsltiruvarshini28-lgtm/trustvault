@@ -140,7 +140,7 @@ function SignupForm() {
                   id="name-input"
                   type="text"
                   required
-                  placeholder="e.g. Sarah Jenkins"
+                  placeholder="Enter your full name"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   className="w-full pl-9 pr-3 py-2 bg-[#F6F9FA] border border-[#D0D9DF] rounded text-xs text-[#263C50] focus:bg-white focus:outline-hidden focus:border-[#527C78] focus:ring-1 focus:ring-[#527C78]"
@@ -161,7 +161,7 @@ function SignupForm() {
                   id="email-input"
                   type="email"
                   required
-                  placeholder="user@trustvault.local"
+                  placeholder="Enter your email address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-9 pr-3 py-2 bg-[#F6F9FA] border border-[#D0D9DF] rounded text-xs text-[#263C50] focus:bg-white focus:outline-hidden focus:border-[#527C78] focus:ring-1 focus:ring-[#527C78]"
@@ -182,7 +182,7 @@ function SignupForm() {
                   id="password-input"
                   type="password"
                   required
-                  placeholder="••••••••••••"
+                  placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full pl-9 pr-3 py-2 bg-[#F6F9FA] border border-[#D0D9DF] rounded text-xs text-[#263C50] focus:bg-white focus:outline-hidden focus:border-[#527C78] focus:ring-1 focus:ring-[#527C78]"
@@ -252,7 +252,7 @@ function SignupForm() {
                   id="confirm-password-input"
                   type="password"
                   required
-                  placeholder="••••••••••••"
+                  placeholder="Confirm your password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="w-full pl-9 pr-3 py-2 bg-[#F6F9FA] border border-[#D0D9DF] rounded text-xs text-[#263C50] focus:bg-white focus:outline-hidden focus:border-[#527C78] focus:ring-1 focus:ring-[#527C78]"

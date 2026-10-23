@@ -175,7 +175,7 @@ function LoginForm() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="alice@trustvault.local"
+                placeholder="Enter your email address"
                 required
                 className="w-full px-3 py-2 rounded border border-[#D0D9DF] bg-white text-xs text-[#263C50] placeholder-[#677582] focus:outline-hidden focus:border-[#527C78] focus:ring-1 focus:ring-[#527C78]"
               />
@@ -190,7 +190,7 @@ function LoginForm() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••••••"
+                placeholder="Enter your password"
                 required
                 className="w-full px-3 py-2 rounded border border-[#D0D9DF] bg-white text-xs text-[#263C50] placeholder-[#677582] focus:outline-hidden focus:border-[#527C78] focus:ring-1 focus:ring-[#527C78]"
               />
