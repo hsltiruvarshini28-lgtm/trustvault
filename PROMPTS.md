@@ -118,6 +118,29 @@ This log documents AI interactions, prompts, findings, vulnerabilities/limitatio
 
 ---
 
+### Entry 7: End-to-End Security Scenarios, Controlled Bypass Verification, and Form Hygiene
+- **Date:** 2026-10-23
+- **Prompt:**
+  "Perform comprehensive end-to-end testing of TrustVault. Verify every visible button, form, upload, and permission state. Sanitize login, signup, and upload form placeholders (ensure empty defaults, hints only, demo accounts separated). Conduct a controlled authorization bypass test to prove security test suite failure and immediate recovery. Add a complete multi-user security lifecycle scenario test suite."
+- **What the AI produced:**
+  Updated form placeholders in `src/app/login/page.tsx`, `src/app/signup/page.tsx`, and `src/app/documents/upload/page.tsx`. Authored `tests/integration/trustvault-security-scenarios.test.ts`.
+- **Specific error, weakness, or limitation discovered:**
+  1. The login form had hardcoded placeholder `alice@trustvault.local` and masked bullets `••••••••••••`, which could mislead users into believing fields were pre-filled.
+  2. The signup form had `e.g. Sarah Jenkins` instead of a generic instruction hint.
+  3. Controlled test proved that bypassing authorization in `src/lib/auth/authorization.ts` immediately caused 6 security test assertions to fail, confirming test sensitivity.
+  4. Initial scenario test had missing telemetry properties (`request_id`, `ip_address`, `user_agent`) on `appendAuditLog`, which `next build` detected during strict TypeScript compilation.
+- **How I checked the issue:**
+  1. Ran `cmd /c npm test` during the controlled authorization bypass, observing 6 failed assertions.
+  2. Ran `cmd /c npm run build` to catch TypeScript compiler errors on audit log payloads.
+  3. Ran live HTTP network verification scripts against `https://trustvaultsecure.vercel.app/` validating unauthenticated 401s, Bob's 403 download rejection, and Admin's 403 content denial.
+- **What I changed to fix it:**
+  1. Standardized all form placeholders to clean hints (`Enter your email address`, `Enter your password`, `Enter your full name`, `Confirm your password`).
+  2. Added full telemetry metadata to all test audit log append calls.
+  3. Restored authorization matrix and confirmed 73/73 passing tests across 8 test suites.
+- **Git commit:** [`6a6f39c`](https://github.com/hsltiruvarshini28-lgtm/trustvault/commit/6a6f39c) *(fix(forms): sanitize placeholders on login, signup, and upload; add end-to-end security scenarios test suite)*
+
+---
+
 ## Reusable Prompts, Instructions, and Context Files
 
 The following context files and instruction sets were reused across the project to maintain consistency and defense-in-depth security:

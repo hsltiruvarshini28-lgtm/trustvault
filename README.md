@@ -182,15 +182,16 @@ npm test
 ```text
 ✓ tests/security/authorization.test.ts (12 tests)
 ✓ tests/security/file-validation.test.ts (6 tests)
+✓ tests/integration/trustvault-security-scenarios.test.ts (4 tests)
 ✓ tests/security/audit-integrity.test.ts (5 tests)
-✓ tests/integration/revocation-and-scenarios.test.ts (8 tests)
 ✓ tests/security/search-and-ai-suggest.test.ts (8 tests)
-✓ tests/security/registration-and-password.test.ts (22 tests)
+✓ tests/integration/revocation-and-scenarios.test.ts (8 tests)
 ✓ tests/security/serverless-session-persistence.test.ts (8 tests)
+✓ tests/security/registration-and-password.test.ts (22 tests)
 
-Test Files  7 passed (7)
-     Tests  69 passed (69)
-  Duration  5.09s
+Test Files  8 passed (8)
+     Tests  73 passed (73)
+  Duration  2.80s
 ```
 
 ### 4. Start Development Server
