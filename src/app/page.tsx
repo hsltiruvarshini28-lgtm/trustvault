@@ -22,6 +22,12 @@ export default function HomePage() {
 
         <div className="flex items-center space-x-3">
           <Link
+            href="/signup"
+            className="px-3 py-1.5 text-xs font-medium text-[#CBD5E1] hover:text-white transition-colors"
+          >
+            <span>Create Account</span>
+          </Link>
+          <Link
             href="/login"
             className="px-3.5 py-1.5 text-xs font-medium text-white bg-[#527C78] hover:bg-[#416863] rounded transition-colors flex items-center space-x-1.5"
           >
@@ -49,16 +55,24 @@ export default function HomePage() {
 
           <div className="pt-3 flex flex-wrap items-center justify-center gap-3">
             <Link
-              href="/login"
+              href="/signup"
               className="px-4 py-2.5 text-xs font-medium text-white bg-[#527C78] hover:bg-[#416863] rounded shadow-sm transition-colors flex items-center space-x-2 cursor-pointer"
             >
               <UserCheck className="w-4 h-4" />
-              <span>Enter Security Console</span>
+              <span>Create Vault Account</span>
+            </Link>
+
+            <Link
+              href="/login"
+              className="px-4 py-2.5 text-xs font-medium text-[#E9EFEC] bg-[#273B4D] hover:bg-[#314A61] border border-[#43627E] rounded transition-colors flex items-center space-x-2 cursor-pointer"
+            >
+              <span>Sign In</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
 
             <Link
               href="/security"
-              className="px-4 py-2.5 text-xs font-medium text-[#E9EFEC] bg-[#273B4D] hover:bg-[#314A61] border border-[#43627E] rounded transition-colors flex items-center space-x-2 cursor-pointer"
+              className="px-4 py-2.5 text-xs font-medium text-[#B3C5D3] hover:text-white transition-colors flex items-center space-x-1.5"
             >
               <Shield className="w-4 h-4 text-[#527C78]" />
               <span>Inspect Security Center</span>

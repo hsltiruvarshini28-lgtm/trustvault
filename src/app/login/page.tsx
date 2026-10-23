@@ -2,7 +2,8 @@
 
 import React, { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Shield, Lock, UserCheck, AlertTriangle, CheckCircle2, ChevronRight } from 'lucide-react';
+import Link from 'next/link';
+import { Shield, Lock, UserCheck, AlertTriangle, CheckCircle2, ChevronRight, UserPlus } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 
 function LoginForm() {
@@ -10,7 +11,7 @@ function LoginForm() {
   const searchParams = useSearchParams();
 
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('DemoPassword123!');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -132,6 +133,7 @@ function LoginForm() {
                 type="button"
                 onClick={() => {
                   setEmail(account.email);
+                  setPassword('DemoPassword123!');
                   handleLogin(account.email, 'DemoPassword123!');
                 }}
                 disabled={loading}
@@ -210,6 +212,18 @@ function LoginForm() {
               )}
             </button>
           </form>
+
+          {/* Footer Link to Register */}
+          <div className="mt-4 pt-3 border-t border-[#D0D9DF] text-center text-xs text-[#677582]">
+            <span>Need a corporate identity? </span>
+            <Link
+              href="/signup"
+              className="font-semibold text-[#527C78] hover:text-[#416863] transition-colors inline-flex items-center gap-1"
+            >
+              <UserPlus className="w-3.5 h-3.5" />
+              <span>Create new vault account</span>
+            </Link>
+          </div>
         </div>
 
         {/* Security Notice */}

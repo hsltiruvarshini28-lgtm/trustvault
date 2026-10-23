@@ -16,30 +16,12 @@ export async function POST(req: NextRequest) {
     const cleanEmail = email.trim().toLowerCase();
     const cookieStore = await cookies();
 
-    // 1. Check demo accounts first
-    const demoProfile = dataStore.getProfileByEmail(cleanEmail);
+    // 1. Verify credentials against local secure store
+    const localCheck = dataStore.verifyCredentials(cleanEmail, password);
 
-    if (demoProfile) {
-      if (demoProfile.status === 'DISABLED') {
-        dataStore.appendAuditLog({
-          actor_user_id: demoProfile.id,
-          document_id: null,
-          action: 'USER_LOGIN',
-          result: 'DENIED',
-          request_id: `req-auth-${Date.now()}`,
-          ip_address: req.headers.get('x-forwarded-for') || '127.0.0.1',
-          user_agent: req.headers.get('user-agent') || 'Browser',
-          metadata: { email: cleanEmail, reason: 'Account disabled' },
-        });
-
-        return NextResponse.json(
-          { error: 'Your account has been disabled. Contact an administrator.' },
-          { status: 403 }
-        );
-      }
-
-      // Successful demo login
-      cookieStore.set(SESSION_COOKIE_NAME, demoProfile.id, {
+    if (localCheck.valid && localCheck.user) {
+      // Set secure session cookie
+      cookieStore.set(SESSION_COOKIE_NAME, localCheck.user.id, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
@@ -48,21 +30,39 @@ export async function POST(req: NextRequest) {
       });
 
       dataStore.appendAuditLog({
-        actor_user_id: demoProfile.id,
+        actor_user_id: localCheck.user.id,
         document_id: null,
         action: 'USER_LOGIN',
         result: 'ALLOWED',
         request_id: `req-auth-${Date.now()}`,
         ip_address: req.headers.get('x-forwarded-for') || '127.0.0.1',
         user_agent: req.headers.get('user-agent') || 'Browser',
-        metadata: { email: cleanEmail, role: demoProfile.role },
+        metadata: { email: cleanEmail, role: localCheck.user.role },
       });
 
       return NextResponse.json({
         success: true,
-        user: demoProfile,
+        user: localCheck.user,
         message: 'Signed in successfully.',
       });
+    }
+
+    if (localCheck.user && localCheck.user.status === 'DISABLED') {
+      dataStore.appendAuditLog({
+        actor_user_id: localCheck.user.id,
+        document_id: null,
+        action: 'USER_LOGIN',
+        result: 'DENIED',
+        request_id: `req-auth-${Date.now()}`,
+        ip_address: req.headers.get('x-forwarded-for') || '127.0.0.1',
+        user_agent: req.headers.get('user-agent') || 'Browser',
+        metadata: { email: cleanEmail, reason: 'Account disabled' },
+      });
+
+      return NextResponse.json(
+        { error: localCheck.reason || 'Your account has been disabled. Contact an administrator.' },
+        { status: 403 }
+      );
     }
 
     // 2. Try Supabase Auth if credentials are configured
@@ -74,6 +74,11 @@ export async function POST(req: NextRequest) {
       });
 
       if (error || !data.user) {
+        const friendlyError =
+          error?.message && error.message !== 'fetch failed'
+            ? error.message
+            : 'Invalid user email or password.';
+
         dataStore.appendAuditLog({
           actor_user_id: null,
           document_id: null,
@@ -82,10 +87,10 @@ export async function POST(req: NextRequest) {
           request_id: `req-auth-${Date.now()}`,
           ip_address: req.headers.get('x-forwarded-for') || '127.0.0.1',
           user_agent: req.headers.get('user-agent') || 'Browser',
-          metadata: { email: cleanEmail, reason: error?.message || 'Invalid credentials' },
+          metadata: { email: cleanEmail, reason: friendlyError },
         });
 
-        return NextResponse.json({ error: error?.message || 'Invalid credentials.' }, { status: 401 });
+        return NextResponse.json({ error: friendlyError }, { status: 401 });
       }
 
       const userProfile =

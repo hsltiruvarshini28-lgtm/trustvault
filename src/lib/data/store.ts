@@ -5,10 +5,18 @@ import {
   AuditLogRecord,
   PermissionLevel,
   AccountStatus,
+  UserRole,
 } from '@/types';
 import { canAccessDocument } from '@/lib/auth/authorization';
 import { computeEventHash, verifyAuditTrailIntegrity, GENESIS_HASH } from '@/lib/audit/audit-logger';
 import { validateUploadedFile } from '@/lib/storage/file-validator';
+import { randomUUID } from 'crypto';
+import {
+  hashPassword,
+  verifyPassword,
+  validatePasswordStrength,
+  isValidEmail,
+} from '@/lib/auth/password';
 
 // --------------------------------------------------------------------
 // Deterministic Seed Data
@@ -237,6 +245,7 @@ function buildSeedAuditLogs(): AuditLogRecord[] {
 // --------------------------------------------------------------------
 class TrustVaultDataStore {
   private profiles: Map<string, UserProfile> = new Map();
+  private credentials: Map<string, string> = new Map();
   private documents: Map<string, DocumentRecord> = new Map();
   private permissions: Map<string, DocumentPermissionRecord> = new Map();
   private auditLogs: AuditLogRecord[] = [];
@@ -248,11 +257,16 @@ class TrustVaultDataStore {
 
   public reset() {
     this.profiles.clear();
+    this.credentials.clear();
     this.documents.clear();
     this.permissions.clear();
     this.fileStorage.clear();
 
-    SEED_PROFILES.forEach((p) => this.profiles.set(p.id, { ...p }));
+    const defaultDemoHash = hashPassword('DemoPassword123!');
+    SEED_PROFILES.forEach((p) => {
+      this.profiles.set(p.id, { ...p });
+      this.credentials.set(p.id, defaultDemoHash);
+    });
     SEED_DOCUMENTS.forEach((d) => this.documents.set(d.id, { ...d }));
     SEED_PERMISSIONS.forEach((p) => this.permissions.set(p.id, { ...p }));
     this.auditLogs = buildSeedAuditLogs();
@@ -266,7 +280,7 @@ class TrustVaultDataStore {
     });
   }
 
-  // --- Profiles ---
+  // --- Profiles & Authentication ---
   public getProfileById(id: string): UserProfile | undefined {
     return this.profiles.get(id);
   }
@@ -287,6 +301,124 @@ class TrustVaultDataStore {
     profile.status = status;
     profile.updated_at = new Date().toISOString();
     return profile;
+  }
+
+  public registerUser(params: {
+    full_name: string;
+    email: string;
+    password: string;
+    role?: UserRole;
+    ip_address?: string;
+    user_agent?: string;
+  }): { success: boolean; user?: UserProfile; error?: string } {
+    if (!params.full_name || !params.full_name.trim()) {
+      return { success: false, error: 'Full name is required.' };
+    }
+    if (!params.email || !params.email.trim()) {
+      return { success: false, error: 'Email address is required.' };
+    }
+    if (!params.password) {
+      return { success: false, error: 'Password is required.' };
+    }
+
+    const cleanEmail = params.email.trim().toLowerCase();
+    if (!isValidEmail(cleanEmail)) {
+      return { success: false, error: 'Please enter a valid email address.' };
+    }
+
+    if (this.getProfileByEmail(cleanEmail)) {
+      return {
+        success: false,
+        error: 'An account with this email address already exists. Please sign in or use another email.',
+      };
+    }
+
+    const strength = validatePasswordStrength(params.password);
+    if (!strength.valid) {
+      return { success: false, error: strength.errors.join(' ') };
+    }
+
+    const id = randomUUID();
+    const now = new Date().toISOString();
+    const profile: UserProfile = {
+      id,
+      full_name: params.full_name.trim(),
+      email: cleanEmail,
+      role: params.role || 'VIEWER',
+      status: 'ACTIVE',
+      created_at: now,
+      updated_at: now,
+    };
+
+    const passwordHash = hashPassword(params.password);
+    this.profiles.set(id, profile);
+    this.credentials.set(id, passwordHash);
+
+    // Append cryptographic audit log for user registration
+    this.appendAuditLog({
+      actor_user_id: id,
+      document_id: null,
+      action: 'USER_REGISTER',
+      result: 'ALLOWED',
+      request_id: `req-reg-${Date.now()}`,
+      ip_address: params.ip_address || '127.0.0.1',
+      user_agent: params.user_agent || 'Browser',
+      metadata: { email: cleanEmail, role: profile.role },
+    });
+
+    return { success: true, user: profile };
+  }
+
+  public verifyCredentials(
+    email: string,
+    password: string
+  ): { valid: boolean; user?: UserProfile; reason?: string } {
+    if (!email || !password) {
+      return { valid: false, reason: 'Email and password are required.' };
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const profile = this.getProfileByEmail(cleanEmail);
+
+    if (!profile) {
+      return { valid: false, reason: 'Invalid user email or password.' };
+    }
+
+    if (profile.status === 'DISABLED') {
+      return {
+        valid: false,
+        user: profile,
+        reason: 'Your account has been disabled. Contact an administrator.',
+      };
+    }
+
+    const storedHash = this.credentials.get(profile.id);
+    if (!storedHash) {
+      return { valid: false, reason: 'Invalid user email or password.' };
+    }
+
+    const matches = verifyPassword(password, storedHash);
+    if (!matches) {
+      return { valid: false, reason: 'Invalid user email or password.' };
+    }
+
+    return { valid: true, user: profile };
+  }
+
+  public updatePassword(userId: string, newPassword: string): { success: boolean; error?: string } {
+    const profile = this.profiles.get(userId);
+    if (!profile) {
+      return { success: false, error: 'User profile not found.' };
+    }
+
+    const strength = validatePasswordStrength(newPassword);
+    if (!strength.valid) {
+      return { success: false, error: strength.errors.join(' ') };
+    }
+
+    const hash = hashPassword(newPassword);
+    this.credentials.set(userId, hash);
+    return { success: true };
   }
 
   // --- Documents ---
