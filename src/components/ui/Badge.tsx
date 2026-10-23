@@ -57,6 +57,18 @@ export function Badge({ variant, children, size = 'sm' }: BadgeProps) {
     case 'VIEWER':
       colorClasses = 'bg-[#F7F7F4] text-[#527C78] border-[#DDE2DF]';
       break;
+    case 'USER_LOGIN':
+    case 'LOGIN':
+      colorClasses = 'bg-[#EDF4F0] text-[#46785C] border-[#BCD5C7] font-semibold';
+      break;
+    case 'USER_LOGOUT':
+    case 'LOGOUT':
+      colorClasses = 'bg-[#EEF3F7] text-[#263C50] border-[#CFDBE5] font-semibold';
+      break;
+    case 'USER_REGISTER':
+    case 'REGISTER':
+      colorClasses = 'bg-[#FAF4EC] text-[#A87532] border-[#EEDBBE] font-semibold';
+      break;
     case 'METADATA_ONLY':
       colorClasses = 'bg-[#F7F7F4] text-[#737B82] border-[#DDE2DF]';
       break;

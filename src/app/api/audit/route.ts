@@ -12,8 +12,10 @@ export async function GET(req: NextRequest) {
   const documentId = searchParams.get('documentId') || undefined;
   const actorId = searchParams.get('actorId') || undefined;
   const result = searchParams.get('result') || undefined;
+  const category = searchParams.get('category') || undefined;
+  const action = searchParams.get('action') || undefined;
 
-  const logs = dataStore.getAuditLogs(user, { documentId, actorId, result });
+  const logs = dataStore.getAuditLogs(user, { documentId, actorId, result, category, action });
 
   return NextResponse.json({
     logs,

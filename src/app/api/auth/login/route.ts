@@ -68,7 +68,11 @@ export async function POST(req: NextRequest) {
         request_id: `req-auth-${Date.now()}`,
         ip_address: req.headers.get('x-forwarded-for') || '127.0.0.1',
         user_agent: req.headers.get('user-agent') || 'Browser',
-        metadata: { email: cleanEmail, role: localCheck.user.role },
+        metadata: {
+          email: cleanEmail,
+          full_name: localCheck.user.full_name,
+          role: localCheck.user.role,
+        },
       });
 
       return NextResponse.json({
@@ -170,6 +174,16 @@ export async function POST(req: NextRequest) {
         message: 'Signed in successfully.',
       });
     } catch {
+      dataStore.appendAuditLog({
+        actor_user_id: null,
+        document_id: null,
+        action: 'USER_LOGIN',
+        result: 'DENIED',
+        request_id: `req-auth-${Date.now()}`,
+        ip_address: req.headers.get('x-forwarded-for') || '127.0.0.1',
+        user_agent: req.headers.get('user-agent') || 'Browser',
+        metadata: { email: cleanEmail, reason: 'Invalid credentials or user not found' },
+      });
       return NextResponse.json({ error: 'Invalid user email or password.' }, { status: 401 });
     }
   } catch (err: unknown) {

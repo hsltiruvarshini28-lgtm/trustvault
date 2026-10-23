@@ -30,7 +30,11 @@ export async function POST(req: NextRequest) {
         request_id: `req-logout-${Date.now()}`,
         ip_address: req.headers.get('x-forwarded-for') || '127.0.0.1',
         user_agent: req.headers.get('user-agent') || 'Browser',
-        metadata: { email: user.email },
+        metadata: {
+          email: user.email,
+          full_name: user.full_name,
+          role: user.role,
+        },
       });
     }
 

@@ -163,8 +163,20 @@ export const SEED_PERMISSIONS: DocumentPermissionRecord[] = [
 
 // Helper to construct seed audit log with real cryptographic hash chain
 function buildSeedAuditLogs(): AuditLogRecord[] {
-  const baseTime = Date.now() - 3600000; // 1 hour ago in the past
+  const baseTime = Date.now() - 3600000; // 1 hour ago
   const events = [
+    {
+      id: 'log-auth-001',
+      actor_user_id: '11111111-1111-4111-a111-111111111111',
+      document_id: null,
+      action: 'USER_LOGIN',
+      result: 'ALLOWED' as const,
+      timestamp: new Date(baseTime + 10000).toISOString(),
+      request_id: 'req-auth-001',
+      ip_address: '192.168.1.10',
+      user_agent: 'TrustVaultWeb/1.0 (Windows NT 10.0)',
+      metadata: { email: 'alice@trustvault.local', full_name: 'Alice Owner', role: 'OWNER', auth_method: 'Corporate Identity Verification' },
+    },
     {
       id: 'log-001',
       actor_user_id: '11111111-1111-4111-a111-111111111111',
@@ -190,6 +202,18 @@ function buildSeedAuditLogs(): AuditLogRecord[] {
       metadata: { target_email: 'bob@trustvault.local', permission: 'READ' },
     },
     {
+      id: 'log-auth-002',
+      actor_user_id: '22222222-2222-4222-a222-222222222222',
+      document_id: null,
+      action: 'USER_LOGIN',
+      result: 'ALLOWED' as const,
+      timestamp: new Date(baseTime + 150000).toISOString(),
+      request_id: 'req-auth-002',
+      ip_address: '192.168.1.20',
+      user_agent: 'TrustVaultWeb/1.0 (MacOS)',
+      metadata: { email: 'bob@trustvault.local', full_name: 'Bob Viewer', role: 'VIEWER', auth_method: 'Corporate Identity Verification' },
+    },
+    {
       id: 'log-003',
       actor_user_id: '33333333-3333-4333-a333-333333333333',
       document_id: 'aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa',
@@ -200,6 +224,42 @@ function buildSeedAuditLogs(): AuditLogRecord[] {
       ip_address: '192.168.1.50',
       user_agent: 'Mozilla/5.0 (Windows NT 10.0)',
       metadata: { reason: 'No active permission found for requester', statusCode: 403 },
+    },
+    {
+      id: 'log-auth-003',
+      actor_user_id: '22222222-2222-4222-a222-222222222222',
+      document_id: null,
+      action: 'USER_LOGOUT',
+      result: 'ALLOWED' as const,
+      timestamp: new Date(baseTime + 240000).toISOString(),
+      request_id: 'req-auth-003',
+      ip_address: '192.168.1.20',
+      user_agent: 'TrustVaultWeb/1.0 (MacOS)',
+      metadata: { email: 'bob@trustvault.local', full_name: 'Bob Viewer', reason: 'User initiated secure sign out' },
+    },
+    {
+      id: 'log-auth-004',
+      actor_user_id: '55555555-5555-4555-a555-555555555555',
+      document_id: null,
+      action: 'USER_LOGIN',
+      result: 'DENIED' as const,
+      timestamp: new Date(baseTime + 300000).toISOString(),
+      request_id: 'req-auth-004',
+      ip_address: '192.168.1.99',
+      user_agent: 'TrustVaultWeb/1.0',
+      metadata: { email: 'eve@trustvault.local', full_name: 'Eve Disabled', reason: 'Account disabled by administrator' },
+    },
+    {
+      id: 'log-auth-005',
+      actor_user_id: '44444444-4444-4444-a444-444444444444',
+      document_id: null,
+      action: 'USER_LOGIN',
+      result: 'ALLOWED' as const,
+      timestamp: new Date(baseTime + 360000).toISOString(),
+      request_id: 'req-auth-005',
+      ip_address: '192.168.1.5',
+      user_agent: 'TrustVaultWeb/1.0 (Security Console)',
+      metadata: { email: 'admin@trustvault.local', full_name: 'Dave Administrator', role: 'ADMIN', auth_method: 'Corporate Admin SSO' },
     },
   ];
 
@@ -699,7 +759,13 @@ class TrustVaultDataStore {
   // --- Audit Trail ---
   public getAuditLogs(
     user: UserProfile,
-    filters?: { documentId?: string; actorId?: string; result?: string }
+    filters?: {
+      documentId?: string;
+      actorId?: string;
+      result?: string;
+      action?: string;
+      category?: string;
+    }
   ): AuditLogRecord[] {
     if (user.status === 'DISABLED') return [];
 
@@ -709,9 +775,10 @@ class TrustVaultDataStore {
     if (user.role === 'ADMIN') {
       // Admins view system-wide logs
     } else if (user.role === 'OWNER') {
-      // Owners view logs for documents they own or where they are the actor
+      // Owners view logs for documents they own, their own action records, and authentication access events
       logs = logs.filter((log) => {
         if (log.actor_user_id === user.id) return true;
+        if (log.action === 'USER_LOGIN' || log.action === 'USER_LOGOUT' || log.action === 'USER_REGISTER') return true;
         if (log.document_id) {
           const doc = this.documents.get(log.document_id);
           if (doc && doc.owner_id === user.id) return true;
@@ -719,8 +786,12 @@ class TrustVaultDataStore {
         return false;
       });
     } else {
-      // Viewers only view their own action records
-      logs = logs.filter((log) => log.actor_user_id === user.id);
+      // Viewers view their own action records and system authentication access logs
+      logs = logs.filter((log) => {
+        if (log.actor_user_id === user.id) return true;
+        if (log.action === 'USER_LOGIN' || log.action === 'USER_LOGOUT') return true;
+        return false;
+      });
     }
 
     // Apply explicit query filters
@@ -732,6 +803,19 @@ class TrustVaultDataStore {
     }
     if (filters?.result) {
       logs = logs.filter((l) => l.result === filters.result);
+    }
+    if (filters?.category === 'AUTH') {
+      logs = logs.filter(
+        (l) => l.action === 'USER_LOGIN' || l.action === 'USER_LOGOUT' || l.action === 'USER_REGISTER'
+      );
+    } else if (filters?.category === 'DOCS') {
+      logs = logs.filter((l) => l.action.startsWith('DOCUMENT_'));
+    } else if (filters?.category === 'PERMS') {
+      logs = logs.filter((l) => l.action.startsWith('PERMISSION_'));
+    }
+
+    if (filters?.action && filters.action !== 'ALL') {
+      logs = logs.filter((l) => l.action.toUpperCase() === filters.action!.toUpperCase());
     }
 
     // Return in reverse chronological order
@@ -771,6 +855,17 @@ class TrustVaultDataStore {
     const actor = params.actor_user_id ? this.profiles.get(params.actor_user_id) : null;
     const doc = params.document_id ? this.documents.get(params.document_id) : null;
 
+    const resolvedActor = actor
+      ? { id: actor.id, full_name: actor.full_name, email: actor.email, role: actor.role }
+      : params.metadata?.email
+      ? {
+          id: params.actor_user_id || 'unauthenticated',
+          full_name: (params.metadata.full_name as string) || (params.metadata.email as string),
+          email: params.metadata.email as string,
+          role: (params.metadata.role as UserRole) || 'VIEWER',
+        }
+      : null;
+
     const newRecord: AuditLogRecord = {
       id,
       actor_user_id: params.actor_user_id,
@@ -784,9 +879,7 @@ class TrustVaultDataStore {
       metadata: params.metadata,
       previous_hash: prevHash,
       event_hash: eventHash,
-      actor: actor
-        ? { id: actor.id, full_name: actor.full_name, email: actor.email, role: actor.role }
-        : null,
+      actor: resolvedActor,
       document: doc ? { id: doc.id, name: doc.name } : null,
     };
 
