@@ -251,11 +251,10 @@ export default async function AuditPage({
 
               <Link
                 href="/audit"
-                className={`px-3 py-1.5 rounded text-xs transition-colors flex items-center space-x-1.5 ${
-                  !category && !action
-                    ? 'bg-[#263C50] text-white font-bold shadow-xs'
-                    : 'bg-[#F4F7F9] text-[#677582] hover:text-[#263C50] hover:bg-[#E9EFF3] border border-[#D0D9DF]'
-                }`}
+                className={`px-3 py-1.5 rounded text-xs transition-colors flex items-center space-x-1.5 ${!category && !action
+                  ? 'bg-[#263C50] text-white font-bold shadow-xs'
+                  : 'bg-[#F4F7F9] text-[#677582] hover:text-[#263C50] hover:bg-[#E9EFF3] border border-[#D0D9DF]'
+                  }`}
               >
                 <span>All Activities</span>
                 <span className="text-[10px] opacity-80">({allUserLogs.length})</span>
@@ -263,11 +262,10 @@ export default async function AuditPage({
 
               <Link
                 href="/audit?category=AUTH"
-                className={`px-3 py-1.5 rounded text-xs transition-colors flex items-center space-x-1.5 ${
-                  category === 'AUTH'
-                    ? 'bg-[#527C78] text-white font-bold shadow-xs'
-                    : 'bg-[#F4F7F9] text-[#677582] hover:text-[#263C50] hover:bg-[#E9EFF3] border border-[#D0D9DF]'
-                }`}
+                className={`px-3 py-1.5 rounded text-xs transition-colors flex items-center space-x-1.5 ${category === 'AUTH'
+                  ? 'bg-[#527C78] text-white font-bold shadow-xs'
+                  : 'bg-[#F4F7F9] text-[#677582] hover:text-[#263C50] hover:bg-[#E9EFF3] border border-[#D0D9DF]'
+                  }`}
               >
                 <LogIn className="w-3.5 h-3.5" />
                 <span>Logins & Logouts</span>
@@ -276,11 +274,10 @@ export default async function AuditPage({
 
               <Link
                 href="/audit?category=DOCS"
-                className={`px-3 py-1.5 rounded text-xs transition-colors flex items-center space-x-1.5 ${
-                  category === 'DOCS'
-                    ? 'bg-[#527C78] text-white font-bold shadow-xs'
-                    : 'bg-[#F4F7F9] text-[#677582] hover:text-[#263C50] hover:bg-[#E9EFF3] border border-[#D0D9DF]'
-                }`}
+                className={`px-3 py-1.5 rounded text-xs transition-colors flex items-center space-x-1.5 ${category === 'DOCS'
+                  ? 'bg-[#527C78] text-white font-bold shadow-xs'
+                  : 'bg-[#F4F7F9] text-[#677582] hover:text-[#263C50] hover:bg-[#E9EFF3] border border-[#D0D9DF]'
+                  }`}
               >
                 <FileText className="w-3.5 h-3.5" />
                 <span>Documents</span>
@@ -289,11 +286,10 @@ export default async function AuditPage({
 
               <Link
                 href="/audit?category=PERMS"
-                className={`px-3 py-1.5 rounded text-xs transition-colors flex items-center space-x-1.5 ${
-                  category === 'PERMS'
-                    ? 'bg-[#527C78] text-white font-bold shadow-xs'
-                    : 'bg-[#F4F7F9] text-[#677582] hover:text-[#263C50] hover:bg-[#E9EFF3] border border-[#D0D9DF]'
-                }`}
+                className={`px-3 py-1.5 rounded text-xs transition-colors flex items-center space-x-1.5 ${category === 'PERMS'
+                  ? 'bg-[#527C78] text-white font-bold shadow-xs'
+                  : 'bg-[#F4F7F9] text-[#677582] hover:text-[#263C50] hover:bg-[#E9EFF3] border border-[#D0D9DF]'
+                  }`}
               >
                 <KeyRound className="w-3.5 h-3.5" />
                 <span>Permissions</span>
@@ -309,14 +305,12 @@ export default async function AuditPage({
               </span>
 
               <Link
-                href={`/audit${category ? `?category=${category}` : ''}${
-                  action ? `${category ? '&' : '?'}action=${action}` : ''
-                }`}
-                className={`px-2.5 py-1 rounded text-xs transition-colors ${
-                  !result
-                    ? 'bg-[#263C50] text-white font-bold shadow-xs'
-                    : 'bg-[#F4F7F9] text-[#677582] hover:text-[#263C50] border border-[#D0D9DF]'
-                }`}
+                href={`/audit${category ? `?category=${category}` : ''}${action ? `${category ? '&' : '?'}action=${action}` : ''
+                  }`}
+                className={`px-2.5 py-1 rounded text-xs transition-colors ${!result
+                  ? 'bg-[#263C50] text-white font-bold shadow-xs'
+                  : 'bg-[#F4F7F9] text-[#677582] hover:text-[#263C50] border border-[#D0D9DF]'
+                  }`}
               >
                 All
               </Link>
@@ -327,11 +321,10 @@ export default async function AuditPage({
                   ...(action ? { action } : {}),
                   result: 'ALLOWED',
                 }).toString()}`}
-                className={`px-2.5 py-1 rounded text-xs transition-colors ${
-                  result === 'ALLOWED'
-                    ? 'bg-[#EAF3EE] text-[#46785C] border border-[#BCD5C7] font-bold shadow-xs'
-                    : 'bg-[#F4F7F9] text-[#677582] hover:text-[#263C50] border border-[#D0D9DF]'
-                }`}
+                className={`px-2.5 py-1 rounded text-xs transition-colors ${result === 'ALLOWED'
+                  ? 'bg-[#EAF3EE] text-[#46785C] border border-[#BCD5C7] font-bold shadow-xs'
+                  : 'bg-[#F4F7F9] text-[#677582] hover:text-[#263C50] border border-[#D0D9DF]'
+                  }`}
               >
                 ALLOWED
               </Link>
@@ -342,11 +335,10 @@ export default async function AuditPage({
                   ...(action ? { action } : {}),
                   result: 'DENIED',
                 }).toString()}`}
-                className={`px-2.5 py-1 rounded text-xs transition-colors ${
-                  result === 'DENIED'
-                    ? 'bg-[#FBEBEB] text-[#B64B4B] border border-[#ECC7C7] font-bold shadow-xs'
-                    : 'bg-[#F4F7F9] text-[#677582] hover:text-[#263C50] border border-[#D0D9DF]'
-                }`}
+                className={`px-2.5 py-1 rounded text-xs transition-colors ${result === 'DENIED'
+                  ? 'bg-[#FBEBEB] text-[#B64B4B] border border-[#ECC7C7] font-bold shadow-xs'
+                  : 'bg-[#F4F7F9] text-[#677582] hover:text-[#263C50] border border-[#D0D9DF]'
+                  }`}
               >
                 DENIED
               </Link>
@@ -360,22 +352,20 @@ export default async function AuditPage({
 
               <Link
                 href={`/audit?category=AUTH${result ? `&result=${result}` : ''}`}
-                className={`px-2.5 py-0.5 rounded text-xs transition-colors ${
-                  !action
-                    ? 'bg-[#527C78] text-white font-semibold'
-                    : 'bg-[#F4F7F9] text-[#677582] hover:text-[#263C50] border border-[#D0D9DF]'
-                }`}
+                className={`px-2.5 py-0.5 rounded text-xs transition-colors ${!action
+                  ? 'bg-[#527C78] text-white font-semibold'
+                  : 'bg-[#F4F7F9] text-[#677582] hover:text-[#263C50] border border-[#D0D9DF]'
+                  }`}
               >
                 All Auth Events
               </Link>
 
               <Link
                 href={`/audit?category=AUTH&action=USER_LOGIN${result ? `&result=${result}` : ''}`}
-                className={`px-2.5 py-0.5 rounded text-xs transition-colors flex items-center space-x-1 ${
-                  action === 'USER_LOGIN'
-                    ? 'bg-[#EDF4F0] text-[#46785C] border border-[#BCD5C7] font-bold'
-                    : 'bg-[#F4F7F9] text-[#677582] hover:text-[#263C50] border border-[#D0D9DF]'
-                }`}
+                className={`px-2.5 py-0.5 rounded text-xs transition-colors flex items-center space-x-1 ${action === 'USER_LOGIN'
+                  ? 'bg-[#EDF4F0] text-[#46785C] border border-[#BCD5C7] font-bold'
+                  : 'bg-[#F4F7F9] text-[#677582] hover:text-[#263C50] border border-[#D0D9DF]'
+                  }`}
               >
                 <LogIn className="w-3 h-3" />
                 <span>Logins Only ({loginLogs.length})</span>
@@ -383,11 +373,10 @@ export default async function AuditPage({
 
               <Link
                 href={`/audit?category=AUTH&action=USER_LOGOUT${result ? `&result=${result}` : ''}`}
-                className={`px-2.5 py-0.5 rounded text-xs transition-colors flex items-center space-x-1 ${
-                  action === 'USER_LOGOUT'
-                    ? 'bg-[#EEF3F7] text-[#263C50] border border-[#CFDBE5] font-bold'
-                    : 'bg-[#F4F7F9] text-[#677582] hover:text-[#263C50] border border-[#D0D9DF]'
-                }`}
+                className={`px-2.5 py-0.5 rounded text-xs transition-colors flex items-center space-x-1 ${action === 'USER_LOGOUT'
+                  ? 'bg-[#EEF3F7] text-[#263C50] border border-[#CFDBE5] font-bold'
+                  : 'bg-[#F4F7F9] text-[#677582] hover:text-[#263C50] border border-[#D0D9DF]'
+                  }`}
               >
                 <LogOut className="w-3 h-3" />
                 <span>Logouts Only ({logoutLogs})</span>
