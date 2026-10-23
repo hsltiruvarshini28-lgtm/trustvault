@@ -101,7 +101,7 @@ describe('Audit Trail Cryptographic Hash Chain and Tamper-Evidence', () => {
   });
 
   it('records USER_LOGIN and USER_LOGOUT events with actor identity in dataStore audit trail', () => {
-    const adminUser = dataStore.getProfileByEmail('admin@trustvault.local');
+    const adminUser = dataStore.getProfileByEmail('admin@trustvault.local')!;
     expect(adminUser).toBeDefined();
 
     // Fetch auth category logs
@@ -109,30 +109,30 @@ describe('Audit Trail Cryptographic Hash Chain and Tamper-Evidence', () => {
     expect(authLogs.length).toBeGreaterThan(0);
 
     // Verify presence of USER_LOGIN events
-    const loginLogs = authLogs.filter((l: any) => l.action === 'USER_LOGIN');
+    const loginLogs = authLogs.filter((l) => l.action === 'USER_LOGIN');
     expect(loginLogs.length).toBeGreaterThan(0);
 
-    const allowedLogin = loginLogs.find((l: any) => l.result === 'ALLOWED');
+    const allowedLogin = loginLogs.find((l) => l.result === 'ALLOWED');
     expect(allowedLogin).toBeDefined();
-    expect(allowedLogin.actor).toBeDefined();
-    expect(allowedLogin.actor.email).toBeDefined();
-    expect(allowedLogin.actor.full_name).toBeDefined();
+    expect(allowedLogin?.actor).toBeDefined();
+    expect(allowedLogin?.actor?.email).toBeDefined();
+    expect(allowedLogin?.actor?.full_name).toBeDefined();
 
     // Verify presence of USER_LOGOUT events
-    const logoutLogs = authLogs.filter((l: any) => l.action === 'USER_LOGOUT');
+    const logoutLogs = authLogs.filter((l) => l.action === 'USER_LOGOUT');
     expect(logoutLogs.length).toBeGreaterThan(0);
 
-    const allowedLogout = logoutLogs.find((l: any) => l.result === 'ALLOWED');
+    const allowedLogout = logoutLogs.find((l) => l.result === 'ALLOWED');
     expect(allowedLogout).toBeDefined();
-    expect(allowedLogout.actor).toBeDefined();
-    expect(allowedLogout.actor.email).toBeDefined();
+    expect(allowedLogout?.actor).toBeDefined();
+    expect(allowedLogout?.actor?.email).toBeDefined();
 
     // Verify action filtering
     const loginsOnly = dataStore.getAuditLogs(adminUser, { action: 'USER_LOGIN' });
-    expect(loginsOnly.every((l: any) => l.action === 'USER_LOGIN')).toBe(true);
+    expect(loginsOnly.every((l) => l.action === 'USER_LOGIN')).toBe(true);
 
     const logoutsOnly = dataStore.getAuditLogs(adminUser, { action: 'USER_LOGOUT' });
-    expect(logoutsOnly.every((l: any) => l.action === 'USER_LOGOUT')).toBe(true);
+    expect(logoutsOnly.every((l) => l.action === 'USER_LOGOUT')).toBe(true);
 
     // Verify overall integrity remains valid with auth logs included
     const verification = dataStore.verifyIntegrity();

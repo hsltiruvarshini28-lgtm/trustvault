@@ -549,7 +549,7 @@ export default async function AuditPage({
                                 {log.document.name}
                               </span>
                               <span className="text-[10px] text-[#677582] font-mono">
-                                Owner ID: {log.document.owner_id.substring(0, 8)}...
+                                Doc ID: {log.document.id.substring(0, 8)}...
                               </span>
                             </div>
                           )}
