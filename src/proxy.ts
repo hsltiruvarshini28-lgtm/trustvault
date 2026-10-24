@@ -17,14 +17,18 @@ export function proxy(request: NextRequest) {
 
   // 1. Redirect already logged-in users away from /login to /dashboard
   if (pathname === '/login' && isAuthenticated) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+    const dashUrl = request.nextUrl.clone();
+    dashUrl.pathname = '/dashboard';
+    dashUrl.search = '';
+    return NextResponse.redirect(dashUrl);
   }
 
   // 2. Protect authenticated page routes
   const isProtectedPath = PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 
   if (isProtectedPath && !isAuthenticated) {
-    const loginUrl = new URL('/login', request.url);
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = '/login';
     loginUrl.searchParams.set('redirect', pathname);
     loginUrl.searchParams.set('message', 'session_required');
     return NextResponse.redirect(loginUrl);
