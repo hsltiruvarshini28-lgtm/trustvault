@@ -10,25 +10,23 @@ export function DocumentsClientSync() {
       const list = JSON.parse(stored);
       if (!Array.isArray(list) || list.length === 0) return;
 
-      // Check if any local document is missing from the cookie
-      const cookieStr = document.cookie || '';
-      if (!cookieStr.includes('trustvault_custom_docs=')) {
-        // Cookie is missing entirely; sync the most recent document
-        const mostRecent = list[0];
-        if (mostRecent && mostRecent.id) {
-          fetch('/api/documents/sync', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ document: mostRecent }),
+      const mostRecent = list[0];
+      if (mostRecent && mostRecent.id) {
+        const syncedKey = `trustvault_docs_synced_${mostRecent.id}`;
+        if (localStorage.getItem(syncedKey)) return;
+        fetch('/api/documents/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ document: mostRecent }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.success) {
+              localStorage.setItem(syncedKey, '1');
+              window.location.reload();
+            }
           })
-            .then((res) => res.json())
-            .then((data) => {
-              if (data.success) {
-                window.location.reload();
-              }
-            })
-            .catch(() => {});
-        }
+          .catch(() => {});
       }
     } catch {
       // Ignore

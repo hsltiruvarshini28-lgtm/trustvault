@@ -34,7 +34,8 @@ export async function POST(req: NextRequest) {
     const response = NextResponse.json({ success: true, document: incomingDoc });
     response.cookies.set(DOCUMENTS_COOKIE_NAME, docsToken, {
       path: '/',
-      httpOnly: false,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 7,
     });

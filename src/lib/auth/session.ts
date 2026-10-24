@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import { createHmac, timingSafeEqual } from 'crypto';
+import { createHmac, timingSafeEqual, randomBytes } from 'crypto';
 import { UserProfile, UserRole, AccountStatus, DocumentRecord, DocumentPermissionRecord } from '@/types';
 import { dataStore } from '@/lib/data/store';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
@@ -9,10 +9,20 @@ export const ACCOUNT_COOKIE_NAME = 'trustvault_account_record';
 export const DOCUMENTS_COOKIE_NAME = 'trustvault_custom_docs';
 export const PERMISSIONS_COOKIE_NAME = 'trustvault_custom_permissions';
 
-const SESSION_SECRET =
-  process.env.SESSION_SECRET ||
-  process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  'trustvault_zero_trust_enterprise_secure_token_secret_2026';
+function resolveSessionSecret(): string {
+  const configured = process.env.SESSION_SECRET?.trim();
+  if (configured) {
+    if (configured.length < 32 && process.env.NODE_ENV === 'production') {
+      console.warn('[security] SESSION_SECRET is shorter than 32 characters. Use 32+ random bytes.');
+    }
+    return configured;
+  }
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('FATAL: SESSION_SECRET is not set. Refusing to sign sessions with an insecure fallback key.');
+  }
+  return randomBytes(48).toString('hex');
+}
+const SESSION_SECRET = resolveSessionSecret();
 
 export interface SessionPayload {
   id: string;
@@ -366,12 +376,6 @@ export async function getCurrentUser(): Promise<UserProfile | null> {
         return null;
       }
       return profile;
-    }
-
-    // B. Backward compatibility for legacy UUID session cookies (e.g. seeded demo accounts)
-    const seedProfile = dataStore.getProfileById(sessionToken);
-    if (seedProfile && seedProfile.status === 'ACTIVE') {
-      return seedProfile;
     }
   }
 
