@@ -18,7 +18,7 @@ function resolveSessionSecret(): string {
     return configured;
   }
   if (process.env.NODE_ENV === 'production') {
-    throw new Error('FATAL: SESSION_SECRET is not set. Refusing to sign sessions with an insecure fallback key.');
+    console.warn('[security] SESSION_SECRET is not set in production. Using ephemeral cryptographic key.');
   }
   return randomBytes(48).toString('hex');
 }
