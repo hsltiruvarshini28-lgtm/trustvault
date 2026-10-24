@@ -40,7 +40,7 @@ TrustVault guarantees **immediate access revocation** via server-mediated file d
    - Comprehensive search supporting **name, owner, category, and date range**.
    - Zero-trust category-aware permission recommendation engine. AI suggestions are strictly advisory and **never widen access automatically**; human owner confirmation is mandatory, generating dual cryptographic audit events.
 
-7. **76 Real Automated Unit & Integration Tests:**
+7. **80 Real Automated Unit & Integration Tests:**
    - Comprehensive test suite covering authorization matrix, revocation, file validation, audit tampering, user registration, serverless session & cross-container document persistence, and search/AI suggestion isolation with 100% pass rate.
 
 ---
@@ -181,17 +181,18 @@ npm test
 **Actual Test Results:**
 ```text
 ✓ tests/security/authorization.test.ts (12 tests)
-✓ tests/security/file-validation.test.ts (6 tests)
+✓ tests/security/session-auth-bypass.test.ts (4 tests)
 ✓ tests/integration/trustvault-security-scenarios.test.ts (4 tests)
 ✓ tests/security/audit-integrity.test.ts (5 tests)
-✓ tests/security/search-and-ai-suggest.test.ts (8 tests)
 ✓ tests/integration/revocation-and-scenarios.test.ts (8 tests)
-✓ tests/security/serverless-session-persistence.test.ts (8 tests)
+✓ tests/security/search-and-ai-suggest.test.ts (8 tests)
+✓ tests/security/file-validation.test.ts (6 tests)
+✓ tests/security/serverless-session-persistence.test.ts (11 tests)
 ✓ tests/security/registration-and-password.test.ts (22 tests)
 
-Test Files  8 passed (8)
-     Tests  73 passed (73)
-  Duration  2.80s
+Test Files  9 passed (9)
+     Tests  80 passed (80)
+  Duration  2.86s
 ```
 
 ### 4. Start Development Server
