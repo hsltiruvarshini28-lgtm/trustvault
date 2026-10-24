@@ -13,7 +13,7 @@ Key components constructed:
 3. **Private File Delivery Engine:** Eliminates public bucket access and long-lived signed URLs. Files are streamed through server-mediated endpoints with strict cache-invalidation headers.
 4. **Append-Only Tamper-Evident Audit Trail:** Powered by SHA-256 cryptographic hash chaining over canonical JSON payloads, accompanied by a verification utility that detects altered, missing, or reordered records.
 5. **Multi-Attribute Search & AI Access Advisor:** Comprehensive search across name, owner, category, and date range, coupled with a zero-trust AI recommendation engine that generates advisory grants requiring mandatory owner confirmation and dual audit logging.
-6. **Robust Automated Test Suite:** 69 automated tests (Vitest) across 7 suites verifying all security scenarios, including path traversal, signature spoofing, role escalation, immediate revocation, stateless session persistence, and search/AI isolation.
+6. **Robust Automated Test Suite:** 80 automated tests (Vitest) across 9 suites verifying all security scenarios, including path traversal, signature spoofing, role escalation, immediate revocation, stateless session persistence, and search/AI isolation.
 7. **Secure Sign-Out and Re-Authentication:** Complete session invalidation, accessible confirmation dialog, flash message handling, and server-side route guards.
 
 ---
