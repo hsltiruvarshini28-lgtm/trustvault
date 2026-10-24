@@ -141,7 +141,7 @@ CREATE OR REPLACE FUNCTION append_audit_event(
 RETURNS UUID
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public, pg_temp
+SET search_path = public, extensions, pg_temp
 AS $$
 DECLARE
     v_last_hash TEXT;
@@ -182,7 +182,7 @@ BEGIN
         'previous_hash', v_last_hash
     )::text;
 
-    v_event_hash := encode(digest(v_raw_payload, 'sha256'), 'hex');
+    v_event_hash := encode(extensions.digest(v_raw_payload::bytea, 'sha256'), 'hex');
 
     INSERT INTO audit_logs (
         id,

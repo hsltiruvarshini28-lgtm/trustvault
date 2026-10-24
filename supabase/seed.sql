@@ -20,7 +20,29 @@ DECLARE
     v_doc2_id UUID := 'bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb';
     v_doc3_id UUID := 'cccccccc-cccc-4ccc-cccc-cccccccccccc';
 BEGIN
-    -- Insert profiles if auth.users exists or mock profile records
+    -- Insert auth.users entries to satisfy profiles foreign key constraint in hosted Supabase
+    INSERT INTO auth.users (
+        instance_id,
+        id,
+        aud,
+        role,
+        email,
+        encrypted_password,
+        email_confirmed_at,
+        raw_app_meta_data,
+        raw_user_meta_data,
+        created_at,
+        updated_at
+    )
+    VALUES 
+        ('00000000-0000-0000-0000-000000000000', v_alice_id, 'authenticated', 'authenticated', 'alice@trustvault.local', crypt('DemoPassword123!', gen_salt('bf')), NOW(), '{"provider":"email","providers":["email"]}', '{"full_name":"Alice Owner"}', NOW(), NOW()),
+        ('00000000-0000-0000-0000-000000000000', v_bob_id, 'authenticated', 'authenticated', 'bob@trustvault.local', crypt('DemoPassword123!', gen_salt('bf')), NOW(), '{"provider":"email","providers":["email"]}', '{"full_name":"Bob Viewer"}', NOW(), NOW()),
+        ('00000000-0000-0000-0000-000000000000', v_charlie_id, 'authenticated', 'authenticated', 'charlie@trustvault.local', crypt('DemoPassword123!', gen_salt('bf')), NOW(), '{"provider":"email","providers":["email"]}', '{"full_name":"Charlie Viewer"}', NOW(), NOW()),
+        ('00000000-0000-0000-0000-000000000000', v_admin_id, 'authenticated', 'authenticated', 'admin@trustvault.local', crypt('DemoPassword123!', gen_salt('bf')), NOW(), '{"provider":"email","providers":["email"]}', '{"full_name":"Dave Administrator"}', NOW(), NOW()),
+        ('00000000-0000-0000-0000-000000000000', v_disabled_id, 'authenticated', 'authenticated', 'eve@trustvault.local', crypt('DemoPassword123!', gen_salt('bf')), NOW(), '{"provider":"email","providers":["email"]}', '{"full_name":"Eve Disabled"}', NOW(), NOW())
+    ON CONFLICT (id) DO NOTHING;
+
+    -- Insert profiles corresponding to auth.users records
     INSERT INTO profiles (id, full_name, email, role, status)
     VALUES 
         (v_alice_id, 'Alice Owner', 'alice@trustvault.local', 'OWNER', 'ACTIVE'),
